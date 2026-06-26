@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Home — Product Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAFAF7;--cream2:#F5F4EF;--paper:#EDE9E0;--stone:#D4CFC4;
+  --warm-gray:#9B9488;--charcoal:#2C2A25;--ink:#1A1814;
+  --bronze:#8B6914;--bronze-light:#C9A84C;--bronze-pale:#F0E6C8;
+  --muted-green:#4A5C45;--green-pale:#E8EDE6;
+  --accent:#7C6B3F;--accent-light:#B8A070;
+  --white:#FFFFFF;
+  --shadow-sm:0 1px 3px rgba(44,42,37,0.08),0 1px 2px rgba(44,42,37,0.06);
+  --shadow-md:0 4px 16px rgba(44,42,37,0.10),0 2px 6px rgba(44,42,37,0.06);
+  --shadow-lg:0 12px 40px rgba(44,42,37,0.12),0 4px 12px rgba(44,42,37,0.08);
+  --radius-sm:6px;--radius:12px;--radius-lg:20px;--radius-xl:32px;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --nav-h:64px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--cream);color:var(--charcoal);font-family:var(--font-body);line-height:1.7;overflow-x:hidden}
+::selection{background:var(--bronze-pale);color:var(--charcoal)}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+/* ── PROGRESS BAR ── */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--bronze-light);z-index:1000;width:0;transition:width 0.1s}
+
+/* ── NAV ── */
+nav{position:fixed;top:2px;left:0;right:0;z-index:900;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 32px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(250,250,247,0.88);border-bottom:1px solid transparent;transition:border-color 0.3s,box-shadow 0.3s}
+nav.scrolled{border-color:var(--stone);box-shadow:var(--shadow-sm)}
+.nav-logo{font-family:var(--font-display);font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-0.02em}
+.nav-logo span{color:var(--bronze)}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{font-size:13px;font-weight:500;color:var(--warm-gray);padding:6px 12px;border-radius:var(--radius-sm);transition:color 0.2s,background 0.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--ink);background:var(--paper)}
+.nav-cta{font-size:13px;font-weight:500;color:var(--bronze);border:1px solid var(--bronze-light);padding:7px 16px;border-radius:40px;transition:all 0.2s;margin-left:8px}
+.nav-cta:hover{background:var(--bronze);color:var(--white)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:1.5px;background:var(--charcoal);transition:all 0.3s}
+
+/* ── MOBILE NAV ── */
+.mobile-nav{display:none;position:fixed;top:var(--nav-h);left:0;right:0;background:var(--cream);border-bottom:1px solid var(--stone);z-index:880;padding:16px;flex-direction:column;gap:4px}
+.mobile-nav.open{display:flex}
+.mobile-nav a{font-size:14px;font-weight:500;color:var(--charcoal);padding:10px 16px;border-radius:var(--radius-sm)}
+.mobile-nav a:hover{background:var(--paper)}
+
+/* ── LAYOUT ── */
+section{padding:100px 0;position:relative}
+.container{max-width:1140px;margin:0 auto;padding:0 40px}
+.container-wide{max-width:1280px;margin:0 auto;padding:0 40px}
+.container-narrow{max-width:800px;margin:0 auto;padding:0 40px}
+
+/* ── SECTION LABELS ── */
+.section-label{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:20px}
+.section-label::before{content:'';width:20px;height:1px;background:var(--bronze-light)}
+.section-title{font-family:var(--font-display);font-size:clamp(32px,5vw,52px);font-weight:500;line-height:1.15;color:var(--ink);letter-spacing:-0.02em;margin-bottom:20px}
+.section-subtitle{font-size:17px;color:var(--warm-gray);line-height:1.7;max-width:600px}
+
+/* ── REVEAL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:0.1s}.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}.reveal-delay-4{transition-delay:0.4s}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+#hero{min-height:100vh;display:flex;align-items:center;padding-top:var(--nav-h);background:var(--cream);position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(44,42,37,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(44,42,37,0.035) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%)}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);animation:float 8s ease-in-out infinite}
+.hero-orb-1{width:600px;height:600px;background:rgba(139,105,20,0.07);top:-100px;right:-100px;animation-delay:0s}
+.hero-orb-2{width:400px;height:400px;background:rgba(74,92,69,0.06);bottom:-50px;left:100px;animation-delay:3s}
+@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.02)}}
+.hero-content{position:relative;z-index:1}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--bronze-pale);border:1px solid rgba(139,105,20,0.2);color:var(--bronze);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:6px 14px;border-radius:40px;margin-bottom:32px}
+.hero-tag::before{content:'';width:6px;height:6px;background:var(--bronze);border-radius:50%;animation:pulse-dot 2s ease infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.8)}}
+.hero-title{font-family:var(--font-display);font-size:clamp(44px,7vw,84px);font-weight:500;line-height:1.05;letter-spacing:-0.03em;color:var(--ink);margin-bottom:28px}
+.hero-title em{font-style:italic;color:var(--bronze)}
+.hero-desc{font-size:18px;color:var(--warm-gray);line-height:1.75;max-width:520px;margin-bottom:40px}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--white);font-size:14px;font-weight:500;padding:14px 28px;border-radius:40px;transition:all 0.25s;border:none;cursor:pointer}
+.btn-primary:hover{background:var(--bronze);transform:translateY(-1px);box-shadow:0 6px 20px rgba(139,105,20,0.25)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--charcoal);font-size:14px;font-weight:500;padding:14px 28px;border-radius:40px;border:1px solid var(--stone);transition:all 0.25s;cursor:pointer}
+.btn-secondary:hover{border-color:var(--charcoal);background:var(--paper)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--stone);border:1px solid var(--stone);border-radius:var(--radius-lg);overflow:hidden;margin-top:60px}
+.hero-stat{background:var(--white);padding:24px;text-align:center}
+.hero-stat-num{font-family:var(--font-display);font-size:36px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.hero-stat-label{font-size:12px;color:var(--warm-gray);font-weight:500}
+
+/* ══════════════════════════════════════
+   EXECUTIVE SUMMARY
+══════════════════════════════════════ */
+#executive{background:var(--white)}
+.exec-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--stone);border:1px solid var(--stone);border-radius:var(--radius-lg);overflow:hidden;margin-top:48px}
+.exec-card{background:var(--white);padding:36px 32px;transition:background 0.2s}
+.exec-card:hover{background:var(--cream)}
+.exec-card-icon{width:40px;height:40px;background:var(--bronze-pale);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:18px}
+.exec-card-title{font-family:var(--font-display);font-size:20px;font-weight:500;color:var(--ink);margin-bottom:12px}
+.exec-card-body{font-size:14px;color:var(--warm-gray);line-height:1.75}
+.exec-card-stat{font-family:var(--font-mono);font-size:26px;font-weight:500;color:var(--bronze);display:block;margin-bottom:8px}
+.why-now{margin-top:60px}
+.why-now-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px}
+.why-card{background:var(--cream2);border:1px solid var(--paper);border-radius:var(--radius);padding:24px;transition:all 0.25s}
+.why-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--bronze-pale)}
+.why-card-num{font-family:var(--font-mono);font-size:11px;color:var(--warm-gray);margin-bottom:12px;font-weight:500}
+.why-card-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.why-card-body{font-size:13px;color:var(--warm-gray);line-height:1.6}
+
+/* ══════════════════════════════════════
+   PROBLEM STATEMENT
+══════════════════════════════════════ */
+#problem{background:var(--cream)}
+.problem-headline{font-family:var(--font-display);font-size:clamp(28px,4vw,42px);font-weight:500;line-height:1.2;color:var(--ink);margin-bottom:48px;max-width:760px}
+.problem-headline span{color:var(--bronze)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:60px}
+.stat-card{background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:28px 24px;text-align:center;transition:all 0.25s;cursor:default}
+.stat-card:hover{border-color:var(--bronze-light);box-shadow:var(--shadow-sm)}
+.stat-card-num{font-family:var(--font-display);font-size:48px;font-weight:500;color:var(--ink);line-height:1;margin-bottom:8px}
+.stat-card-num.counting{color:var(--bronze)}
+.stat-card-label{font-size:13px;color:var(--warm-gray);font-weight:500}
+.stat-card-source{font-size:11px;color:var(--stone);margin-top:6px;font-family:var(--font-mono)}
+.problem-points{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}
+.problem-point{background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:28px;border-left:3px solid var(--bronze-light)}
+.problem-point-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.problem-point-body{font-size:13px;color:var(--warm-gray);line-height:1.7}
+
+/* ══════════════════════════════════════
+   MARKET OPPORTUNITY
+══════════════════════════════════════ */
+#market{background:var(--ink);color:var(--white)}
+#market .section-label{color:var(--bronze-light)}
+#market .section-label::before{background:var(--bronze)}
+#market .section-title{color:var(--white)}
+#market .section-subtitle{color:rgba(255,255,255,0.55)}
+.market-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.market-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:28px 24px;transition:all 0.25s}
+.market-card:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.18)}
+.market-card-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze-light);margin-bottom:16px}
+.market-card-val{font-family:var(--font-display);font-size:38px;font-weight:500;color:var(--white);line-height:1;margin-bottom:8px}
+.market-card-desc{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6}
+.market-divider{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:60px 0}
+.ai-wave{background:rgba(139,105,20,0.1);border:1px solid rgba(139,105,20,0.2);border-radius:var(--radius-lg);padding:40px;margin-top:40px}
+.ai-wave-title{font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--white);margin-bottom:16px}
+.ai-wave-body{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.75;margin-bottom:24px}
+.ai-wave-stats{display:flex;gap:40px;flex-wrap:wrap}
+.ai-wave-stat{text-align:center}
+.ai-wave-stat-num{font-family:var(--font-display);font-size:36px;font-weight:500;color:var(--bronze-light)}
+.ai-wave-stat-label{font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px}
+
+/* ══════════════════════════════════════
+   TARGET CUSTOMERS
+══════════════════════════════════════ */
+#customers{background:var(--white)}
+.personas-container{margin-top:48px}
+.persona-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:32px;border-bottom:1px solid var(--stone);padding-bottom:0}
+.persona-tab{font-size:13px;font-weight:500;color:var(--warm-gray);padding:10px 16px;border-radius:var(--radius-sm) var(--radius-sm) 0 0;cursor:pointer;transition:all 0.2s;border:1px solid transparent;border-bottom:none;margin-bottom:-1px}
+.persona-tab:hover{color:var(--ink);background:var(--paper)}
+.persona-tab.active{color:var(--ink);background:var(--white);border-color:var(--stone);font-weight:600}
+.persona-panel{display:none}
+.persona-panel.active{display:block}
+.persona-card{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.persona-avatar{width:56px;height:56px;background:var(--bronze-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:20px;color:var(--bronze);margin-bottom:20px}
+.persona-name{font-family:var(--font-display);font-size:24px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.persona-age{font-size:13px;color:var(--warm-gray);margin-bottom:20px}
+.persona-desc{font-size:14px;color:var(--charcoal);line-height:1.75;margin-bottom:24px}
+.persona-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.badge{font-size:11px;font-weight:600;padding:5px 12px;border-radius:40px;letter-spacing:0.04em}
+.badge-priority-high{background:rgba(139,105,20,0.1);color:var(--bronze);border:1px solid rgba(139,105,20,0.2)}
+.badge-priority-med{background:var(--green-pale);color:var(--muted-green);border:1px solid rgba(74,92,69,0.2)}
+.badge-ai-high{background:var(--bronze-pale);color:var(--accent)}
+.persona-details{display:flex;flex-direction:column;gap:20px}
+.persona-detail-group{background:var(--cream);border:1px solid var(--stone);border-radius:var(--radius);padding:20px}
+.persona-detail-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:12px}
+.persona-detail-list{display:flex;flex-direction:column;gap:6px}
+.persona-detail-item{font-size:13px;color:var(--charcoal);display:flex;align-items:flex-start;gap:8px}
+.persona-detail-item::before{content:'—';color:var(--stone);flex-shrink:0;margin-top:2px}
+.persona-budget{font-family:var(--font-mono);font-size:22px;color:var(--bronze)}
+
+/* ══════════════════════════════════════
+   COMPETITOR ANALYSIS
+══════════════════════════════════════ */
+#competitors{background:var(--cream2)}
+.comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.comp-card{background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.3s}
+.comp-card:hover{box-shadow:var(--shadow-md);border-color:var(--bronze-light);transform:translateY(-2px)}
+.comp-card-header{padding:24px 24px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--paper)}
+.comp-logo{width:36px;height:36px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--paper);display:flex;align-items:center;justify-content:center}
+.comp-logo img{width:100%;height:100%;object-fit:contain}
+.comp-logo-text{font-size:11px;font-weight:700;color:var(--charcoal);text-transform:uppercase}
+.comp-name{font-size:15px;font-weight:600;color:var(--ink)}
+.comp-type{font-size:11px;color:var(--warm-gray)}
+.comp-body{padding:16px 24px 24px}
+.comp-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--warm-gray);margin-bottom:6px}
+.comp-text{font-size:13px;color:var(--charcoal);line-height:1.6;margin-bottom:16px}
+.comp-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.comp-pill{font-size:11px;padding:3px 10px;border-radius:40px}
+.comp-pill-green{background:var(--green-pale);color:var(--muted-green)}
+.comp-pill-red{background:#FEE8E8;color:#8B2222}
+.comp-expand{display:none;padding:0 24px 24px;border-top:1px solid var(--paper)}
+.comp-expand.open{display:block;padding-top:20px}
+.comp-expand p{font-size:13px;color:var(--warm-gray);line-height:1.7;margin-bottom:12px}
+.comp-table-wrapper{overflow-x:auto;margin-top:48px}
+.comp-table{width:100%;border-collapse:collapse;min-width:700px}
+.comp-table th{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--warm-gray);padding:12px 16px;border-bottom:2px solid var(--stone);text-align:left}
+.comp-table td{padding:12px 16px;border-bottom:1px solid var(--paper);font-size:13px;color:var(--charcoal)}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:var(--cream)}
+.comp-table tr.highlight td{background:var(--bronze-pale)}
+.tick{color:var(--muted-green);font-weight:700}.cross{color:#C0392B;font-weight:700}.partial{color:var(--bronze)}
+
+/* ══════════════════════════════════════
+   GAP ANALYSIS
+══════════════════════════════════════ */
+#gap{background:var(--white)}
+.gap-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
+.gap-col{border-radius:var(--radius-lg);overflow:hidden}
+.gap-col-header{padding:24px 28px;font-size:13px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase}
+.gap-col-body{padding:0 28px 28px;display:flex;flex-direction:column;gap:12px}
+.gap-col-before .gap-col-header{background:#FDECEA;color:#8B2222}
+.gap-col-before{border:1px solid #F5C6C3}
+.gap-col-after .gap-col-header{background:var(--green-pale);color:var(--muted-green)}
+.gap-col-after{border:1px solid rgba(74,92,69,0.2)}
+.gap-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--charcoal);line-height:1.6;padding:12px;border-radius:var(--radius-sm)}
+.gap-item-icon{font-size:16px;flex-shrink:0;margin-top:2px}
+.gap-positioning{margin-top:60px;background:var(--ink);border-radius:var(--radius-xl);padding:48px;text-align:center}
+.gap-positioning-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--bronze-light);margin-bottom:16px}
+.gap-positioning-title{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:500;color:var(--white);line-height:1.15;margin-bottom:20px}
+.gap-positioning-body{font-size:15px;color:rgba(255,255,255,0.55);max-width:560px;margin:0 auto}
+
+/* ══════════════════════════════════════
+   RISKS
+══════════════════════════════════════ */
+#risks{background:var(--cream)}
+.risk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px}
+.risk-card{background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;cursor:pointer;transition:all 0.25s}
+.risk-card:hover{border-color:var(--bronze-light);box-shadow:var(--shadow-sm)}
+.risk-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.risk-card-left{display:flex;align-items:center;gap:12px}
+.risk-num{font-family:var(--font-mono);font-size:12px;color:var(--warm-gray)}
+.risk-level{font-size:10px;font-weight:700;padding:3px 10px;border-radius:40px;letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0}
+.risk-level-critical{background:#FDECEA;color:#8B2222;border:1px solid #F5C6C3}
+.risk-level-high{background:var(--bronze-pale);color:var(--bronze)}
+.risk-level-med{background:var(--green-pale);color:var(--muted-green)}
+.risk-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.risk-body{font-size:13px;color:var(--warm-gray);line-height:1.65;display:none}
+.risk-body.open{display:block}
+.risk-toggle{font-size:18px;color:var(--warm-gray);transition:transform 0.25s;flex-shrink:0;line-height:1}
+.risk-card.open .risk-toggle{transform:rotate(180deg)}
+
+/* ══════════════════════════════════════
+   METRICS / DASHBOARD
+══════════════════════════════════════ */
+#metrics{background:var(--ink);color:var(--white)}
+#metrics .section-label{color:var(--bronze-light)}
+#metrics .section-label::before{background:var(--bronze)}
+#metrics .section-title{color:var(--white)}
+.metrics-tabs{display:flex;gap:4px;margin-top:40px;margin-bottom:32px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:0}
+.metrics-tab{font-size:13px;font-weight:500;color:rgba(255,255,255,0.4);padding:10px 18px;cursor:pointer;border-radius:var(--radius-sm) var(--radius-sm) 0 0;transition:all 0.2s;border:1px solid transparent;border-bottom:none;margin-bottom:-1px}
+.metrics-tab:hover{color:rgba(255,255,255,0.7)}
+.metrics-tab.active{color:var(--white);background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);font-weight:600}
+.metrics-panel{display:none}
+.metrics-panel.active{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.metric-kpi{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:24px}
+.metric-kpi-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px}
+.metric-kpi-val{font-family:var(--font-display);font-size:32px;font-weight:500;color:var(--white);line-height:1;margin-bottom:8px}
+.metric-kpi-target{font-size:12px;color:var(--bronze-light)}
+.metric-kpi-desc{font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.5}
+.progress-ring-wrap{display:flex;align-items:center;gap:16px;margin-top:16px}
+.progress-ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--white)}
+
+/* ══════════════════════════════════════
+   ROADMAP
+══════════════════════════════════════ */
+#roadmap{background:var(--cream2)}
+.roadmap-phases{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--stone);border:1px solid var(--stone);border-radius:var(--radius-lg);overflow:hidden;margin-top:48px}
+.roadmap-phase{background:var(--white);padding:28px 24px;cursor:pointer;transition:background 0.2s;position:relative}
+.roadmap-phase:hover{background:var(--cream)}
+.roadmap-phase.active{background:var(--ink)}
+.roadmap-phase-num{font-family:var(--font-mono);font-size:11px;color:var(--warm-gray);margin-bottom:12px;transition:color 0.2s}
+.roadmap-phase.active .roadmap-phase-num{color:rgba(255,255,255,0.4)}
+.roadmap-phase-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;transition:color 0.2s}
+.roadmap-phase.active .roadmap-phase-title{color:var(--white)}
+.roadmap-phase-period{font-size:12px;color:var(--warm-gray);transition:color 0.2s}
+.roadmap-phase.active .roadmap-phase-period{color:rgba(255,255,255,0.5)}
+.roadmap-phase-dot{width:8px;height:8px;border-radius:50%;background:var(--stone);margin-top:16px;transition:background 0.2s}
+.roadmap-phase.active .roadmap-phase-dot{background:var(--bronze-light)}
+.roadmap-detail{background:var(--white);border:1px solid var(--stone);border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:36px;display:none}
+.roadmap-detail.active{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.roadmap-detail-theme{font-family:var(--font-display);font-size:22px;font-weight:500;color:var(--ink);margin-bottom:8px}
+.roadmap-detail-desc{font-size:14px;color:var(--warm-gray);line-height:1.7;margin-bottom:24px}
+.roadmap-features{display:flex;flex-direction:column;gap:8px}
+.roadmap-feature{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--charcoal);padding:10px;background:var(--cream);border-radius:var(--radius-sm)}
+.roadmap-feature::before{content:'→';color:var(--bronze);flex-shrink:0;font-weight:600;margin-top:1px}
+.roadmap-kpis{display:flex;flex-direction:column;gap:12px}
+.roadmap-kpi{background:var(--cream2);border:1px solid var(--stone);border-radius:var(--radius-sm);padding:16px}
+.roadmap-kpi-label{font-size:11px;font-weight:600;color:var(--warm-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.roadmap-kpi-val{font-family:var(--font-mono);font-size:18px;color:var(--bronze)}
+
+/* ══════════════════════════════════════
+   MVP FEATURES
+══════════════════════════════════════ */
+#mvp{background:var(--white)}
+.mvp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.mvp-card{background:var(--cream);border:1px solid var(--stone);border-radius:var(--radius);padding:28px;transition:all 0.25s;border-top:3px solid var(--stone)}
+.mvp-card:hover{border-top-color:var(--bronze);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.mvp-card-icon{font-size:28px;margin-bottom:16px}
+.mvp-card-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.mvp-card-body{font-size:13px;color:var(--warm-gray);line-height:1.7}
+.mvp-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:40px;margin-top:16px}
+.mvp-badge-critical{background:var(--bronze-pale);color:var(--bronze);border:1px solid rgba(139,105,20,0.3)}
+.mvp-badge-important{background:var(--green-pale);color:var(--muted-green);border:1px solid rgba(74,92,69,0.2)}
+
+/* ══════════════════════════════════════
+   PRODUCT IDEAS
+══════════════════════════════════════ */
+#ideas{background:var(--cream2)}
+.ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.idea-card{background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);overflow:hidden;transition:all 0.25s;cursor:pointer}
+.idea-card:hover{box-shadow:var(--shadow-md);border-color:var(--bronze-light);transform:translateY(-2px)}
+.idea-card-top{padding:20px 20px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.idea-num{font-family:var(--font-mono);font-size:11px;color:var(--warm-gray)}
+.idea-priority{font-size:10px;font-weight:700;padding:3px 9px;border-radius:40px;letter-spacing:0.06em;text-transform:uppercase}
+.idea-priority-mvp{background:var(--bronze-pale);color:var(--bronze)}
+.idea-priority-v1{background:var(--green-pale);color:var(--muted-green)}
+.idea-priority-v2{background:var(--cream);color:var(--warm-gray)}
+.idea-title{font-size:14px;font-weight:600;color:var(--ink);padding:0 20px 12px}
+.idea-expand{padding:0 20px;display:none;border-top:1px solid var(--paper)}
+.idea-expand.open{display:block;padding-top:16px;padding-bottom:20px}
+.idea-row{display:flex;gap:8px;margin-bottom:8px;font-size:12px}
+.idea-row-label{color:var(--warm-gray);font-weight:600;min-width:110px;flex-shrink:0}
+.idea-row-val{color:var(--charcoal);line-height:1.5}
+.effort-bar{display:flex;gap:3px;align-items:center}
+.effort-dot{width:8px;height:8px;border-radius:50%;background:var(--stone)}
+.effort-dot.filled{background:var(--bronze)}
+
+/* ══════════════════════════════════════
+   USER JOURNEY
+══════════════════════════════════════ */
+#journey{background:var(--white)}
+.journey-steps{display:flex;gap:0;margin-top:48px;overflow-x:auto;padding-bottom:4px}
+.journey-step{flex:0 0 140px;cursor:pointer;padding:16px 0}
+.journey-step-num{font-family:var(--font-mono);font-size:11px;color:var(--warm-gray);margin-bottom:8px}
+.journey-step-label{font-size:12px;font-weight:600;color:var(--charcoal);margin-bottom:8px}
+.journey-step-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--stone);background:var(--white);position:relative;margin-bottom:0;transition:all 0.25s}
+.journey-step.active .journey-step-dot{background:var(--bronze);border-color:var(--bronze)}
+.journey-step.active .journey-step-label{color:var(--bronze)}
+.journey-connector{flex:1;height:2px;background:var(--stone);margin-top:39px;min-width:20px}
+.journey-detail{background:var(--cream);border:1px solid var(--stone);border-radius:var(--radius-lg);padding:40px;margin-top:24px}
+.journey-detail-stage{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:12px}
+.journey-detail-title{font-family:var(--font-display);font-size:26px;font-weight:500;color:var(--ink);margin-bottom:16px}
+.journey-detail-desc{font-size:15px;color:var(--charcoal);line-height:1.8}
+.journey-persona-quote{background:var(--white);border-left:3px solid var(--bronze-light);padding:16px 20px;margin-top:20px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:14px;color:var(--warm-gray);font-style:italic;line-height:1.7}
+
+/* ══════════════════════════════════════
+   AI STRATEGY
+══════════════════════════════════════ */
+#ai-strategy{background:var(--cream)}
+.ai-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--stone);border:1px solid var(--stone);border-radius:var(--radius-lg);overflow:hidden;margin-top:48px}
+.ai-col{padding:36px;background:var(--white)}
+.ai-col-label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;margin-bottom:28px}
+.ai-col-label-dot{width:10px;height:10px;border-radius:50%}
+.ai-col-yes .ai-col-label{color:var(--muted-green)}
+.ai-col-yes .ai-col-label-dot{background:var(--muted-green)}
+.ai-col-no .ai-col-label{color:#C0392B}
+.ai-col-no .ai-col-label-dot{background:#C0392B}
+.ai-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:13px;line-height:1.6;color:var(--charcoal)}
+.ai-col-yes .ai-item{background:var(--green-pale);border:1px solid rgba(74,92,69,0.1)}
+.ai-col-no .ai-item{background:#FEF3F2;border:1px solid rgba(192,57,43,0.1)}
+.ai-item-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.ai-item-title{font-weight:600;margin-bottom:2px}
+
+/* ══════════════════════════════════════
+   90 DAYS PLAN
+══════════════════════════════════════ */
+#plan90{background:var(--ink);color:var(--white)}
+#plan90 .section-label{color:var(--bronze-light)}
+#plan90 .section-label::before{background:var(--bronze)}
+#plan90 .section-title{color:var(--white)}
+.plan-timeline{display:flex;flex-direction:column;gap:0;margin-top:48px}
+.plan-item{display:grid;grid-template-columns:160px 32px 1fr;column-gap:20px}
+.plan-item-time{padding:24px 0 40px 0;text-align:right}
+.plan-item-time-label{font-size:13px;font-weight:600;color:var(--bronze-light)}
+.plan-item-time-desc{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px}
+.plan-item-marker{display:flex;flex-direction:column;align-items:center;height:100%}
+.plan-item-dot{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.15);flex-shrink:0;margin-top:24px}
+.plan-item.highlight .plan-item-dot{background:var(--bronze);border-color:var(--bronze-light)}
+.plan-item-line{width:1px;flex:1 1 auto;min-height:20px;background:rgba(255,255,255,0.12);margin-top:8px}
+.plan-item-content{padding:20px 0 40px 24px;border-left:1px solid rgba(255,255,255,0.08)}
+.plan-item-title{font-size:16px;font-weight:600;color:var(--white);margin-bottom:10px}
+.plan-item-goal{font-size:12px;color:var(--bronze-light);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.plan-item-tasks{display:flex;flex-direction:column;gap:6px}
+.plan-item-task{font-size:13px;color:rgba(255,255,255,0.55);padding-left:14px;position:relative;line-height:1.6}
+.plan-item-task::before{content:'·';position:absolute;left:0;color:var(--bronze-light)}
+.plan-item-deliverable{background:rgba(139,105,20,0.12);border:1px solid rgba(139,105,20,0.2);border-radius:var(--radius-sm);padding:12px 14px;margin-top:14px;font-size:12px;color:rgba(255,255,255,0.6);display:flex;gap:8px}
+.plan-item-deliverable::before{content:'→';color:var(--bronze-light);flex-shrink:0}
+
+/* ══════════════════════════════════════
+   FOUNDER QUESTIONS
+══════════════════════════════════════ */
+#questions{background:var(--white)}
+.questions-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+.question-card{background:var(--cream);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;transition:all 0.25s;cursor:pointer}
+.question-card:hover{border-color:var(--bronze-light);background:var(--bronze-pale)}
+.question-num{font-family:var(--font-mono);font-size:11px;color:var(--warm-gray);margin-bottom:10px}
+.question-text{font-size:14px;font-weight:500;color:var(--ink);line-height:1.65}
+.question-tag{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:40px;background:var(--white);color:var(--warm-gray);margin-top:14px;border:1px solid var(--stone)}
+
+/* ══════════════════════════════════════
+   RECOMMENDATIONS
+══════════════════════════════════════ */
+#recommendations{background:var(--cream2)}
+.recs-list{display:flex;flex-direction:column;gap:0;margin-top:48px;border:1px solid var(--stone);border-radius:var(--radius-lg);overflow:hidden}
+.rec-item{display:grid;grid-template-columns:80px 1fr;background:var(--white);border-bottom:1px solid var(--paper);transition:background 0.2s}
+.rec-item:last-child{border-bottom:none}
+.rec-item:hover{background:var(--cream)}
+.rec-num{display:flex;align-items:center;justify-content:center;border-right:1px solid var(--paper);padding:28px}
+.rec-num-inner{font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--bronze)}
+.rec-body{padding:24px 28px}
+.rec-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.rec-desc{font-size:13px;color:var(--warm-gray);line-height:1.7}
+
+/* ══════════════════════════════════════
+   FINAL SECTION
+══════════════════════════════════════ */
+#final{background:var(--ink);padding:120px 0;text-align:center}
+.final-label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--bronze-light);margin-bottom:24px}
+.final-title{font-family:var(--font-display);font-size:clamp(36px,5vw,64px);font-weight:500;color:var(--white);line-height:1.1;letter-spacing:-0.02em;margin-bottom:28px}
+.final-title em{color:var(--bronze-light);font-style:italic}
+.final-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:48px auto 0;max-width:800px}
+.final-pillar{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:28px 24px;text-align:left}
+.final-pillar-num{font-family:var(--font-mono);font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:12px}
+.final-pillar-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px}
+.final-pillar-body{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.65}
+.final-sign{margin-top:60px;padding-top:40px;border-top:1px solid rgba(255,255,255,0.08)}
+.final-sign p{font-size:13px;color:rgba(255,255,255,0.3)}
+
+/* ── BACK TO TOP ── */
+#back-top{position:fixed;bottom:32px;right:32px;width:44px;height:44px;border-radius:50%;background:var(--ink);color:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transform:translateY(10px);transition:all 0.3s;border:1px solid rgba(255,255,255,0.1);z-index:900;font-size:18px}
+#back-top.visible{opacity:1;transform:translateY(0)}
+#back-top:hover{background:var(--bronze);border-color:var(--bronze)}
+
+/* ── UTILITY ── */
+.highlight-text{color:var(--bronze)}
+.divider{border:none;border-top:1px solid var(--stone);margin:60px 0}
+.text-muted{color:var(--warm-gray)}
+.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mt-8{margin-top:32px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .exec-cards{grid-template-columns:1fr}
+  .why-now-grid{grid-template-columns:repeat(2,1fr)}
+  .market-cards{grid-template-columns:1fr}
+  .comp-grid{grid-template-columns:1fr 1fr}
+  .gap-grid{grid-template-columns:1fr}
+  .roadmap-phases{grid-template-columns:1fr 1fr}
+  .roadmap-detail.active{grid-template-columns:1fr}
+  .mvp-grid{grid-template-columns:1fr 1fr}
+  .ideas-grid{grid-template-columns:1fr 1fr}
+  .ai-split{grid-template-columns:1fr}
+  .final-pillars{grid-template-columns:1fr}
+  .metrics-panel.active{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .nav-cta{display:none}
+  .hamburger{display:flex}
+}
+@media(max-width:768px){
+  :root{--nav-h:56px}
+  section{padding:70px 0}
+  .container,.container-wide,.container-narrow{padding:0 20px}
+  .hero-stats{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr}
+  .problem-points{grid-template-columns:1fr}
+  .comp-grid{grid-template-columns:1fr}
+  .risk-grid{grid-template-columns:1fr}
+  .questions-grid{grid-template-columns:1fr}
+  .plan-item{grid-template-columns:100px 24px 1fr;column-gap:12px}
+  .plan-item-content{padding-left:16px}
+  .mvp-grid{grid-template-columns:1fr}
+  .ideas-grid{grid-template-columns:1fr}
+  .roadmap-phases{grid-template-columns:1fr 1fr}
+  .hero-actions{gap:10px}
+  .personas-container .persona-card{grid-template-columns:1fr}
+  .metrics-panel.active{grid-template-columns:1fr}
+  .ai-wave-stats{gap:24px}
+  .why-now-grid{grid-template-columns:1fr}
+  .persona-tabs{gap:4px}
+  .persona-tab{font-size:12px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ── NAV ── -->
+<nav id="nav">
+  <div class="nav-logo">AI<span>Home</span></div>
+  <div class="nav-links">
+    <a href="#executive">Summary</a>
+    <a href="#problem">Problem</a>
+    <a href="#market">Market</a>
+    <a href="#customers">Customers</a>
+    <a href="#competitors">Competition</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#final">Vision</a>
+    <a href="#citations">Sources</a>
+  </div>
+  <a href="#executive" class="nav-cta">Explore ↓</a>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#executive" onclick="closeMenu()">Executive Summary</a>
+  <a href="#problem" onclick="closeMenu()">Problem</a>
+  <a href="#market" onclick="closeMenu()">Market</a>
+  <a href="#customers" onclick="closeMenu()">Target Customers</a>
+  <a href="#competitors" onclick="closeMenu()">Competition</a>
+  <a href="#gap" onclick="closeMenu()">Gap Analysis</a>
+  <a href="#roadmap" onclick="closeMenu()">Roadmap</a>
+  <a href="#ideas" onclick="closeMenu()">Product Ideas</a>
+  <a href="#journey" onclick="closeMenu()">User Journey</a>
+  <a href="#final" onclick="closeMenu()">Vision</a>
+  <a href="#citations" onclick="closeMenu()">Sources &amp; Citations</a>
+</div>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag reveal">Product Strategy Document</div>
+      <h1 class="hero-title reveal reveal-delay-1">The home<br>you <em>imagine</em>,<br>finally within reach.</h1>
+      <p class="hero-desc reveal reveal-delay-2">An AI-native platform that translates how people want to live into precisely the right furniture, appliances, and décor — delivered and installed. Built for India's 500M+ digital-first home buyers.</p>
+      <div class="hero-actions reveal reveal-delay-3">
+        <a href="#executive" class="btn-primary">Explore the Strategy →</a>
+        <a href="#roadmap" class="btn-secondary">See the Roadmap</a>
+      </div>
+      <div class="hero-stats reveal reveal-delay-4">
+        <div class="hero-stat">
+          <div class="hero-stat-num" data-count="15.8" data-suffix="B">$0B</div>
+          <div class="hero-stat-label">India Furniture Market 2024</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" data-count="33.8" data-suffix="B">$0B</div>
+          <div class="hero-stat-label">Projected by 2033</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num" data-count="7.9" data-suffix="%">0%</div>
+          <div class="hero-stat-label">Market CAGR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     EXECUTIVE SUMMARY
+══════════════════════════════════════ -->
+<section id="executive">
+  <div class="container">
+    <div class="section-label reveal">Executive Summary</div>
+    <h2 class="section-title reveal reveal-delay-1">Every person furnishing a home<br>is forced to solve a complex problem<br>using tools designed for groceries.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">This startup exists to fix that. The furniture buying problem is not a catalog problem — it is a translation problem. Only AI can solve it at scale.</p>
+
+    <div class="exec-cards reveal reveal-delay-2">
+      <div class="exec-card">
+        <div class="exec-card-icon">🏠</div>
+        <div class="exec-card-title">The Market</div>
+        <span class="exec-card-stat">$15.8B → $33.8B</span>
+        <div class="exec-card-body">India's home furniture market is growing at 7.9% CAGR through 2033. The broader home furnishings category — décor, textiles, appliances — adds another $7.49B+ in 2025, projected to reach $12.71B by 2034.</div>
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-icon">💔</div>
+        <div class="exec-card-title">The Broken Experience</div>
+        <span class="exec-card-stat">63% → 43%</span>
+        <div class="exec-card-body">While 63% of shoppers start their furniture journey online, only 43% complete their purchase there. A 20-point dropout rate that signals not a lack of intent, but a catastrophic failure of experience.</div>
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-icon">🤖</div>
+        <div class="exec-card-title">The AI Opportunity</div>
+        <span class="exec-card-stat">300% Revenue Lift</span>
+        <div class="exec-card-body">74% of consumers believe AI enhances their shopping experience. Personalized AI recommendations can lead to a 300% revenue increase, 150% rise in conversion rates, and 50% growth in average order values.</div>
+      </div>
+      <div class="exec-card">
+        <div class="exec-card-icon">⚡</div>
+        <div class="exec-card-title">The Agentic Wave</div>
+        <span class="exec-card-stat">$3T–$5T Global</span>
+        <div class="exec-card-body">McKinsey projects agentic commerce — where AI shops, negotiates, and transacts on behalf of humans — could generate $3–5 trillion globally by 2030. A shift comparable to mobile, but moving faster.</div>
+      </div>
+    </div>
+
+    <div class="why-now reveal reveal-delay-3">
+      <div class="section-label">Why Now</div>
+      <div class="why-now-grid">
+        <div class="why-card">
+          <div class="why-card-num">01 / DEMOGRAPHIC</div>
+          <div class="why-card-title">Millennials & Gen Z now dominate</div>
+          <div class="why-card-body">They make up 90–95% of home purchases in India. 54% of luxury housing transactions in H1 2024. By 2030, 60% of new homebuyers will be Millennial or Gen Z.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-card-num">02 / MARKET</div>
+          <div class="why-card-title">Inflection point in organized retail</div>
+          <div class="why-card-body">The online furniture segment is only 3% of organized retail but growing 30–40% year on year. The gap between digital intent and digital completion is the exact market to capture.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-card-num">03 / TECHNOLOGY</div>
+          <div class="why-card-title">AI readiness has reached consumers</div>
+          <div class="why-card-body">74% of US consumers (directionally similar in urban India) say AI enhances their shopping. The skepticism barrier for AI-guided high-value purchases has materially lowered.</div>
+        </div>
+        <div class="why-card">
+          <div class="why-card-num">04 / TIMING</div>
+          <div class="why-card-title">The agentic commerce wave is early</div>
+          <div class="why-card-body">Global consumer spending through conversational commerce hit $290B in 2025, up from $41B in 2021 — a 7× jump in four years. Building AI-native now means riding the earliest, most defensible wave.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PROBLEM STATEMENT
+══════════════════════════════════════ -->
+<section id="problem">
+  <div class="container">
+    <div class="section-label reveal">Problem Statement</div>
+    <h2 class="problem-headline reveal reveal-delay-1">Buying furniture today is one of the most <span>cognitively expensive</span> purchases a person makes. It shouldn't be.</h2>
+
+    <div class="stat-grid reveal reveal-delay-2">
+      <div class="stat-card">
+        <div class="stat-card-num counting" data-target="4000" data-suffix="">0</div>
+        <div class="stat-card-label">Variables in buying a single sofa</div>
+        <div class="stat-card-source">length, depth, material, color, leg, arm, cushion...</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num counting" data-target="70.19" data-suffix="%">0%</div>
+        <div class="stat-card-label">Average global cart abandonment rate</div>
+        <div class="stat-card-source">$260B in recoverable lost orders annually</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-num counting" data-target="22" data-suffix="%">0%</div>
+        <div class="stat-card-label">Average furniture return rate online</div>
+        <div class="stat-card-source">18–25% range; higher than any major category</div>
+      </div>
+    </div>
+
+    <div class="problem-points reveal reveal-delay-3">
+      <div class="problem-point">
+        <div class="problem-point-title">The Choice Overload Crisis</div>
+        <div class="problem-point-body">A meta-analysis of 99 studies confirmed that higher choice set complexity has a reliable, significant impact on choice overload. Furniture ticks every single box: high task difficulty, complex choice sets, high preference uncertainty, and demanding decision goals.</div>
+      </div>
+      <div class="problem-point">
+        <div class="problem-point-title">The Guidance Gap</div>
+        <div class="problem-point-body">Shoppers need help narrowing choices, yet only a small percentage rely on retail sales associate recommendations. Online, that gap is even larger — there is no interior designer, no knowledgeable salesperson, and no spatial context.</div>
+      </div>
+      <div class="problem-point">
+        <div class="problem-point-title">The Research Burden</div>
+        <div class="problem-point-body">Millennials are comparison shoppers, with 75% checking prices at multiple retailers. They spend weeks gathering information that never quite answers the right questions: Will this sofa fit my room? Will this table match my floors?</div>
+      </div>
+      <div class="problem-point">
+        <div class="problem-point-title">The Trust Deficit (India)</div>
+        <div class="problem-point-body">Interior platforms like Livspace have attracted more headlines for angry reviews than happy clients — hidden charges, soaring quotes, shoddy work, money that disappears. This trust deficit creates a genuine opening for a platform that is radically transparent and accountable.</div>
+      </div>
+      <div class="problem-point">
+        <div class="problem-point-title">The Return & Regret Problem</div>
+        <div class="problem-point-body">When people guess wrong — and they frequently do — the consequences are severe. In a category where delivery and installation take weeks, a 20% return rate means one in five purchases results in logistical misery and months-long disruption to the customer's home.</div>
+      </div>
+      <div class="problem-point">
+        <div class="problem-point-title">The Real Problem: Translation</div>
+        <div class="problem-point-body">The problem is not a lack of products. It is the absence of intelligence applied to the buying journey. Consumers know how they want their home to feel, but cannot translate that into a precise, compatible, beautiful set of products. That gap is the business.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MARKET OPPORTUNITY
+══════════════════════════════════════ */
+<section id="market">
+  <div class="container">
+    <div class="section-label reveal">Market Opportunity</div>
+    <h2 class="section-title reveal reveal-delay-1">A $50–65B market in India alone,<br>growing to $100B+ by 2033.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">This startup isn't entering a static furniture market. It's entering an AI commerce wave at its earliest and most defensible moment.</p>
+
+    <div class="market-cards reveal reveal-delay-2">
+      <div class="market-card">
+        <div class="market-card-label">TAM — India</div>
+        <div class="market-card-val">$50–65B</div>
+        <div class="market-card-desc">Furniture + furnishings + appliances + décor + electronics (2025). Growing to $100B+ by 2033. Online furniture alone growing 30–40% year-on-year.</div>
+      </div>
+      <div class="market-card">
+        <div class="market-card-label">SAM — Organized Digital</div>
+        <div class="market-card-val">$5–8B</div>
+        <div class="market-card-desc">Urban/semi-urban organized retail channel + premium offline. Households earning ₹8L+ annually who purchase home products intentionally and with budget flexibility.</div>
+      </div>
+      <div class="market-card">
+        <div class="market-card-label">SOM — Year 3 Target</div>
+        <div class="market-card-val">₹100–500Cr</div>
+        <div class="market-card-desc">2–4 metro cities, tech-savvy mid-to-premium buyers (₹10–80L spend). Organic and referral-driven growth in the first three years of operation.</div>
+      </div>
+    </div>
+
+    <div class="market-divider"></div>
+
+    <div class="ai-wave reveal reveal-delay-3">
+      <div class="ai-wave-title">The Global AI Commerce Tailwind</div>
+      <div class="ai-wave-body">McKinsey calls agentic commerce "a seismic shift" that will transform shopping from a series of discrete steps into a continuous, intent-driven flow. Global furniture e-commerce reached ~$283B in 2024, with 2025 projected at ~$318B. The question is not whether AI will transform this category — it's who will own that transformation in India.</div>
+      <div class="ai-wave-stats">
+        <div class="ai-wave-stat">
+          <div class="ai-wave-stat-num">$290B</div>
+          <div class="ai-wave-stat-label">Conversational commerce 2025</div>
+        </div>
+        <div class="ai-wave-stat">
+          <div class="ai-wave-stat-num">7×</div>
+          <div class="ai-wave-stat-label">Growth in 4 years (from $41B in 2021)</div>
+        </div>
+        <div class="ai-wave-stat">
+          <div class="ai-wave-stat-num">$318B</div>
+          <div class="ai-wave-stat-label">Global furniture e-commerce (2025 est.)</div>
+        </div>
+        <div class="ai-wave-stat">
+          <div class="ai-wave-stat-num">$3–5T</div>
+          <div class="ai-wave-stat-label">Agentic commerce by 2030 (McKinsey)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     TARGET CUSTOMERS
+══════════════════════════════════════ -->
+<section id="customers">
+  <div class="container">
+    <div class="section-label reveal">Target Customers</div>
+    <h2 class="section-title reveal reveal-delay-1">Seven distinct segments.<br>Three to target first.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">Do not make the mistake of saying "urban millennials" and treating that as a segment. Effective product strategy requires crisp persona definition — the AI onboarding, price point, and trust-building strategy will be completely different for each.</p>
+
+    <div class="personas-container reveal reveal-delay-3">
+      <div class="persona-tabs" id="personaTabs">
+        <div class="persona-tab active" onclick="switchPersona(0)">New Homeowners</div>
+        <div class="persona-tab" onclick="switchPersona(1)">Newlyweds</div>
+        <div class="persona-tab" onclick="switchPersona(2)">Young Professionals</div>
+        <div class="persona-tab" onclick="switchPersona(3)">DINK Couples</div>
+        <div class="persona-tab" onclick="switchPersona(4)">Premium Buyers</div>
+        <div class="persona-tab" onclick="switchPersona(5)">Design Enthusiasts</div>
+        <div class="persona-tab" onclick="switchPersona(6)">WFH Professionals</div>
+      </div>
+
+      <!-- Persona 1 -->
+      <div class="persona-panel active">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">NH</div>
+            <div class="persona-name">First-Time Homeowner</div>
+            <div class="persona-age">26–35 years · First 2–3 BHK</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-high">★ Highest Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: Very High</span>
+            </div>
+            <div class="persona-desc">Recently purchased their first apartment, often in metros or Tier-1 cities. First time furnishing a space they own and intend to stay in for years. High emotional investment — every purchase feels consequential.</div>
+            <div class="persona-budget">₹3–15L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">total furnishing budget, in tranches</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Overwhelming choices with no spatial intuition</div>
+                <div class="persona-detail-item">Fear of making a ₹50,000+ mistake</div>
+                <div class="persona-detail-item">No idea how rooms should coordinate aesthetically</div>
+                <div class="persona-detail-item">No trusted advisor to narrow the options</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment First</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Anxiety is real and intense — perfect for AI relief</div>
+                <div class="persona-detail-item">Meaningful budget per order</div>
+                <div class="persona-detail-item">Enormous referral potential in social circles</div>
+                <div class="persona-detail-item">One high-value cohort moment with lifetime loyalty</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 2 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">NW</div>
+            <div class="persona-name">Recently Married Couple</div>
+            <div class="persona-age">26–34 years · Setting up shared home</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-high">High Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: High</span>
+            </div>
+            <div class="persona-desc">Setting up a shared home together. Strong aesthetic preferences from two people who may disagree. Gift registries, family opinions, time pressure of a wedding timeline.</div>
+            <div class="persona-budget">₹5–25L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">often supplemented by wedding gifts and family</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Coordinating preferences between two people</div>
+                <div class="persona-detail-item">Aligning furniture across a partially empty apartment</div>
+                <div class="persona-detail-item">Managing delivery timelines around move-in dates</div>
+                <div class="persona-detail-item">Shared purchase = shared accountability when things go wrong</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">High GMV per order — concentrated burst at marriage</div>
+                <div class="persona-detail-item">Very shareable moment on social media</div>
+                <div class="persona-detail-item">Natural referral engine — everyone in their circle is watching</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 3 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">YP</div>
+            <div class="persona-name">Young Urban Professional</div>
+            <div class="persona-age">24–32 years · Moving cities</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-high">High Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: Extremely High</span>
+            </div>
+            <div class="persona-desc">IIT/IIM grads, startup employees, IT professionals relocating between cities. Often renting, sometimes buying. Need to furnish quickly, practically, within budget. Time is their scarcest resource.</div>
+            <div class="persona-budget">₹1–5L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">per move; practical over aspirational</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Time scarcity is the dominant problem — pay for speed</div>
+                <div class="persona-detail-item">Don't want to spend weekends in furniture stores</div>
+                <div class="persona-detail-item">Need quick delivery and installation</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Early adopters of every tech product</div>
+                <div class="persona-detail-item">Volume segment — every 2–3 years as they change cities</div>
+                <div class="persona-detail-item">Heavy word-of-mouth in connected professional circles</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 4 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">DI</div>
+            <div class="persona-name">Dual-Income, No Kids (DINK)</div>
+            <div class="persona-age">28–40 years · High combined income</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-high">High Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: High</span>
+            </div>
+            <div class="persona-desc">Both partners working, high combined income, little time. Willing to spend more for a managed experience. Home is an identity statement. They want someone — or something — to just handle it.</div>
+            <div class="persona-budget">₹10–40L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">willing to pay premium for service quality</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Time is the scarcity — not money</div>
+                <div class="persona-detail-item">Installation delays, needing to be home for delivery</div>
+                <div class="persona-detail-item">Coordinating multiple vendors is exhausting</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Best unit economics — highest willingness to pay</div>
+                <div class="persona-detail-item">Upgrade-prone — will re-furnish rooms every 3–5 years</div>
+                <div class="persona-detail-item">Lowest price sensitivity; judge on quality and experience</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 5 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">PB</div>
+            <div class="persona-name">Premium / Aspirational Buyer</div>
+            <div class="persona-age">30–50 years · Senior professionals</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-med">Medium-High Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: Medium</span>
+            </div>
+            <div class="persona-desc">Business owners, CXOs buying second or third homes. Expect a concierge-level experience. Finding products that are genuinely premium — not just expensive — is the core challenge.</div>
+            <div class="persona-budget">₹30L–₹1Cr+</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">expect human escalation at high price points</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Finding genuinely premium quality (not just expensive)</div>
+                <div class="persona-detail-item">Coordinated aesthetics across 3,000+ sqft</div>
+                <div class="persona-detail-item">Skilled professional installation, not generic contractors</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Strategic Note</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Important for GMV and brand positioning</div>
+                <div class="persona-detail-item">Requires very high service quality — not an MVP segment</div>
+                <div class="persona-detail-item">Serve via AI + human concierge hybrid model in V2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 6 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">DE</div>
+            <div class="persona-name">Design Enthusiast</div>
+            <div class="persona-age">24–38 years · Aesthetic-driven</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-med">Medium-High Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: Very High</span>
+            </div>
+            <div class="persona-desc">Active on Instagram, Pinterest, Houzz. Strong aesthetic opinions. Follows interior design influencers. Wants their home to look like a magazine shoot but can't find the right products in India.</div>
+            <div class="persona-budget">₹2–15L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">flexible upward for the right piece</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Gap between Pinterest inspiration and purchasable products</div>
+                <div class="persona-detail-item">Can't find the right aesthetic pieces available in India</div>
+                <div class="persona-detail-item">Wants AI that executes their vision, not overrides it</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Powerful word-of-mouth — influencer-adjacent</div>
+                <div class="persona-detail-item">If this group loves the product, acquisition costs drop dramatically</div>
+                <div class="persona-detail-item">Content creators who share their homes = free distribution</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Persona 7 -->
+      <div class="persona-panel">
+        <div class="persona-card">
+          <div>
+            <div class="persona-avatar">WF</div>
+            <div class="persona-name">Remote Worker / WFH Professional</div>
+            <div class="persona-age">28–42 years · Permanent WFH</div>
+            <div class="persona-badges">
+              <span class="badge badge-priority-med">Medium Priority</span>
+              <span class="badge badge-ai-high">AI Readiness: Extremely High</span>
+            </div>
+            <div class="persona-desc">Post-pandemic permanent WFH workers investing in their home workspace. Ergonomic chairs, standing desks, acoustic panels. Need products that look good in a living space while being functional for 8+ hours of work.</div>
+            <div class="persona-budget">₹1–8L</div>
+            <div style="font-size:12px;color:var(--warm-gray);margin-top:4px">for workspace transformation</div>
+          </div>
+          <div class="persona-details">
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Pain Points</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Finding products that look good AND work for 8+ hours</div>
+                <div class="persona-detail-item">Very few platforms understand this dual requirement</div>
+                <div class="persona-detail-item">Ergonomic furniture often looks clinical in home settings</div>
+              </div>
+            </div>
+            <div class="persona-detail-group">
+              <div class="persona-detail-title">Why This Segment</div>
+              <div class="persona-detail-list">
+                <div class="persona-detail-item">Growing rapidly — permanent WFH is a structural shift</div>
+                <div class="persona-detail-item">Specific and underserved need = low competition</div>
+                <div class="persona-detail-item">Power users of productivity software = AI-native buyers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     COMPETITOR ANALYSIS
+══════════════════════════════════════ -->
+<section id="competitors">
+  <div class="container">
+    <div class="section-label reveal">Competitor Analysis</div>
+    <h2 class="section-title reveal reveal-delay-1">No single competitor is doing<br>what this startup wants to do.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">But every component of the intended experience has an existing player doing part of it. Understanding each reveals exactly where the gap lives.</p>
+
+    <div class="comp-grid reveal reveal-delay-2">
+      <!-- Pepperfry -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">PF</div></div>
+          <div><div class="comp-name">Pepperfry</div><div class="comp-type">Indian Marketplace</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">India's largest online furniture marketplace. Asset-light model aggregating sellers + six internal brands. FY23 revenue: ₹273Cr with ₹187Cr loss.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">80,000+ SKUs</span>
+            <span class="comp-pill comp-pill-green">400+ cities</span>
+            <span class="comp-pill comp-pill-red">Unprofitable</span>
+            <span class="comp-pill comp-pill-red">No AI</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Strengths:</strong> Massive catalog, strong brand recognition, 400+ city delivery network, physical Studios that bridge the trust gap with offline touchpoints.</p>
+          <p><strong>Weakness:</strong> Valued at $375M but unprofitable for a decade. No intelligent recommendation. Discovery is still catalog-based. Consistent quality complaints.</p>
+          <p><strong>Insight for us:</strong> Physical touchpoints are essential for high-value categories. But don't build a marketplace of everything — curation is more valuable than volume.</p>
+        </div>
+      </div>
+
+      <!-- Urban Ladder -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">UL</div></div>
+          <div><div class="comp-name">Urban Ladder</div><div class="comp-type">Branded Furniture</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">Premium curated furniture brand acquired by Reliance Retail in 2020 for ₹182Cr — a massive markdown from its ₹1,200Cr peak valuation.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">Design quality</span>
+            <span class="comp-pill comp-pill-green">Reliance muscle</span>
+            <span class="comp-pill comp-pill-red">IKEA undercut</span>
+            <span class="comp-pill comp-pill-red">~90 cities only</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Strengths:</strong> Strong design curation, quality positioning, now backed by Reliance's distribution muscle.</p>
+          <p><strong>Weakness:</strong> Limited to ~90 cities vs Pepperfry's 400+. IKEA's India entry delivered a direct hit to their core value proposition on both quality and price.</p>
+          <p><strong>Insight for us:</strong> Curation and design quality can be a moat. But don't build a brand that IKEA can outflank on quality and experience simultaneously.</p>
+        </div>
+      </div>
+
+      <!-- Wooden Street -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">WS</div></div>
+          <div><div class="comp-name">Wooden Street</div><div class="comp-type">Custom Manufacturer</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">Custom furniture with "Goldilocks" model — limited customization (color, fabric) while standardizing internal components. FY2024: ₹340Cr revenue, profitable for 4 years.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">Profitable</span>
+            <span class="comp-pill comp-pill-green">Mfg control</span>
+            <span class="comp-pill comp-pill-red">No AI</span>
+            <span class="comp-pill comp-pill-red">Furniture only</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Strengths:</strong> Manufacturing control = quality control = customer trust. Limited customization within a structured system is more scalable than infinite customization.</p>
+          <p><strong>Weakness:</strong> Primarily a furniture company, not an experience platform. No AI, no room-context understanding, no appliances or electronics.</p>
+          <p><strong>Insight for us:</strong> Their ₹350Cr Premji Invest round (Dec 2024) validates consumer appetite for quality control. The moat they've built is operational, not experiential.</p>
+        </div>
+      </div>
+
+      <!-- Livspace -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">LS</div></div>
+          <div><div class="comp-name">Livspace</div><div class="comp-type">Interior Platform</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">End-to-end home interior design platform. FY2022: sales ₹570Cr, losses ₹645Cr — net loss 1.5× its revenues. IKEA invested in 2019.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">Right vision</span>
+            <span class="comp-pill comp-pill-red">Execution crisis</span>
+            <span class="comp-pill comp-pill-red">Trust disaster</span>
+            <span class="comp-pill comp-pill-red">Burning capital</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Strengths:</strong> Largest organized interior design platform in India. End-to-end ownership of the process. Technology-enabled project management.</p>
+          <p><strong>Weakness:</strong> Hidden charges, soaring quotes, shoddy work, unresponsive service are documented publicly at scale. The gap between promise and delivery is catastrophic.</p>
+          <p><strong>Lesson for us:</strong> The appetite for end-to-end service is massive. The market is begging for someone to do what Livspace promises, reliably. Never grow geographically faster than you can control service quality.</p>
+        </div>
+      </div>
+
+      <!-- IKEA -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">IK</div></div>
+          <div><div class="comp-name">IKEA India</div><div class="comp-type">Global Retailer</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">Integrated design-to-retail, self-manufacturing. Delhi-NCR small-format stores launched March 2025. IKEA Place AR app for room visualization.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">Brand trust</span>
+            <span class="comp-pill comp-pill-green">AR visualization</span>
+            <span class="comp-pill comp-pill-red">No AI context</span>
+            <span class="comp-pill comp-pill-red">Own catalog only</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Why IKEA cannot close the gap:</strong> IKEA is structurally locked into its own catalog. An AI that might recommend a competitor's sofa alongside IKEA's table is impossible for them to build. Their experience is designed around the physical store journey, not conversational AI.</p>
+          <p><strong>IKEA's philosophy:</strong> Customers will discover the right product by walking through a well-designed store. This startup's philosophy: AI should understand the customer and surface exactly what they need. These are fundamentally different.</p>
+        </div>
+      </div>
+
+      <!-- Amazon -->
+      <div class="comp-card" onclick="toggleComp(this)">
+        <div class="comp-card-header">
+          <div class="comp-logo"><div class="comp-logo-text">AM</div></div>
+          <div><div class="comp-name">Amazon India</div><div class="comp-type">General E-Commerce</div></div>
+        </div>
+        <div class="comp-body">
+          <div class="comp-label">Business Model</div>
+          <div class="comp-text">General marketplace with home category. Logistics infrastructure, pricing power, Prime delivery, massive traffic. Furniture is an SEO-optimized sea of variable quality.</div>
+          <div class="comp-pills">
+            <span class="comp-pill comp-pill-green">Logistics scale</span>
+            <span class="comp-pill comp-pill-green">Price power</span>
+            <span class="comp-pill comp-pill-red">No curation</span>
+            <span class="comp-pill comp-pill-red">No installation</span>
+          </div>
+        </div>
+        <div class="comp-expand">
+          <p><strong>Why Amazon cannot close the gap:</strong> Amazon's entire model depends on surfacing maximum options and letting price, reviews, and Prime delivery do the work. An AI that says "here are the 5 products you actually need" is the opposite of Amazon's strategy.</p>
+          <p><strong>The structural conflict:</strong> They monetize through sponsored listings and volume. A curated, need-first AI undercuts their advertising revenue model. Amazon will add AI features at the margin but will never make its core experience opinionated.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="comp-table-wrapper reveal reveal-delay-3">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>Pepperfry</th>
+            <th>Urban Ladder</th>
+            <th>Livspace</th>
+            <th>IKEA</th>
+            <th>Amazon</th>
+            <th>This Startup</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AI Need Understanding</td><td class="cross">✗</td><td class="cross">✗</td><td class="partial">Partial</td><td class="cross">✗</td><td class="cross">✗</td><td class="tick">✓</td></tr>
+          <tr><td>Room Visualization</td><td class="cross">✗</td><td class="cross">✗</td><td class="partial">Partial</td><td class="partial">AR only</td><td class="cross">✗</td><td class="tick">✓</td></tr>
+          <tr><td>Cross-Category Coordination</td><td class="partial">Partial</td><td class="partial">Partial</td><td class="tick">✓</td><td class="partial">Limited</td><td class="cross">✗</td><td class="tick">✓</td></tr>
+          <tr><td>End-to-End Delivery</td><td class="tick">✓</td><td class="partial">Partial</td><td class="tick">✓</td><td class="partial">Limited</td><td class="partial">Partial</td><td class="tick">✓</td></tr>
+          <tr><td>Professional Installation</td><td class="partial">Partial</td><td class="partial">Partial</td><td class="tick">✓</td><td class="cross">✗</td><td class="cross">✗</td><td class="tick">✓</td></tr>
+          <tr><td>Consistent Service Quality</td><td class="cross">✗</td><td class="partial">Medium</td><td class="cross">✗</td><td class="tick">✓</td><td class="cross">✗</td><td class="partial">TBD</td></tr>
+          <tr class="highlight"><td><strong>Conversational Discovery</strong></td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="cross">✗</td><td class="tick">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     GAP ANALYSIS
+══════════════════════════════════════ -->
+<section id="gap">
+  <div class="container">
+    <div class="section-label reveal">Gap Analysis</div>
+    <h2 class="section-title reveal reveal-delay-1">One gap stands out<br>with absolute clarity.</h2>
+    <p class="section-subtitle reveal reveal-delay-2">No one has built an AI that understands a person's full context — lifestyle, space, taste, budget, existing possessions — and uses that understanding to provide a coherent, coordinated, end-to-end product experience.</p>
+
+    <div class="gap-grid reveal reveal-delay-2">
+      <div class="gap-col gap-col-before">
+        <div class="gap-col-header">Today's Experience</div>
+        <div class="gap-col-body">
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>Browse 80,000+ SKUs with no intelligent filtering</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>No way to check if products fit your room dimensions</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>No coordination between furniture, lighting, and décor</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>Delivery and installation handled by different parties</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>18–25% return rate when things don't match expectations</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>No memory of your preferences across sessions or years</span></div>
+          <div class="gap-item"><span class="gap-item-icon">✗</span><span>Inspiration on Pinterest, purchase impossible in India</span></div>
+        </div>
+      </div>
+      <div class="gap-col gap-col-after">
+        <div class="gap-col-header">With This Platform</div>
+        <div class="gap-col-body">
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>7-minute conversation → 6 curated, compatible products</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>Spatial compatibility check built into every recommendation</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>Aesthetic coordination across wood tones, colors, styles</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>Single-platform delivery + professional installation booking</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>AI accuracy targeting sub-10% return rate</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>Persistent home profile that knows what you own and love</span></div>
+          <div class="gap-item"><span class="gap-item-icon">→</span><span>Bridge inspiration to purchasable, deliverable, installed reality</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gap-positioning reveal reveal-delay-3">
+      <div class="gap-positioning-label">The Unique Position to Own</div>
+      <div class="gap-positioning-title">"The intelligent<br>home buying partner."</div>
+      <div class="gap-positioning-body">Not a marketplace. Not an interior design firm. Not an AR tool. An AI that listens before it sells, recommends instead of lists, coordinates across categories, delivers and installs, and takes responsibility for the outcome — not just the transaction. This position is completely unoccupied in the Indian market.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MAJOR RISKS
+══════════════════════════════════════ -->
+<section id="risks">
+  <div class="container">
+    <div class="section-label reveal">Major Risks</div>
+    <h2 class="section-title reveal reveal-delay-1">The risks are real.<br>Every one of them is solvable.</h2>
+
+    <div class="risk-grid reveal reveal-delay-2">
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">01</span><div class="risk-title">The Cold Start Problem</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-critical">Critical</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">At launch, there is no behavioral data, no purchase history, no preference signals. The AI will make generic recommendations that differ only marginally from a smart filter. This risks destroying trust before it has been built. This is the single most underestimated risk in the entire model.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">02</span><div class="risk-title">AI Hallucinations in High-Stakes Purchases</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-critical">Critical</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">AI hallucinations in e-commerce cost businesses $67.4B in 2024 alone. 71% of consumers abandon a brand after one bad AI interaction. When the AI wrongly recommends a sofa that doesn't fit room dimensions, the trust cost in a ₹50,000+ purchase is enormous and potentially permanent. Unlike the wrong movie recommendation, the wrong sofa stays in the living room for months.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">03</span><div class="risk-title">Margin Compression</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-high">High</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">Furniture carries thin margins in organized retail. Add delivery costs, installation costs, return handling, and AI infrastructure — unit economics can turn negative quickly. Last-mile delivery accounts for ~53% of total shipping costs. For bulky furniture and appliances, logistics cost per order can be ₹1,500–8,000. Sustainable margins require high AOV or clever monetization beyond simple product margins.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">04</span><div class="risk-title">Installation Quality is Uncontrollable</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-high">High</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">Every carpenter, assembly technician, or appliance installer is a brand touchpoint. One incompetent or rude installer can destroy a perfect purchase experience. Managing installation quality at scale across multiple cities is operationally complex in ways that no amount of AI can automate away.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">05</span><div class="risk-title">Return Handling Nightmare</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-high">High</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">Online furniture return rates average 18–25%. When a ₹40,000 sofa needs to be returned, reverse logistics cost can approach or exceed forward logistics cost. Return processing for bulky items is expensive, slow, and damaging to product condition. If AI recommendations are imperfect early, return rates will be high, destroying unit economics at the worst possible moment.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">06</span><div class="risk-title">Consumer Trust in AI for Expensive Decisions</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-med">Medium</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">Users report serious concerns about AI performance — they lack trust in accuracy, completeness, and data security, and worry about hallucinations and privacy. Asking someone to let an AI guide a ₹2L purchase is a significant trust ask. Early users will be skeptical. The platform must earn trust through repeated small wins before earning it for large purchases.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">07</span><div class="risk-title">Data Privacy and Personalization Tension</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-med">Medium</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">The AI needs family size, room dimensions, lifestyle, aesthetic preferences, budget, and possibly location data. Any perception of misuse — or a data breach — would be catastrophic for a startup whose entire value proposition is built on trust and personalization.</div>
+      </div>
+
+      <div class="risk-card" onclick="toggleRisk(this)">
+        <div class="risk-card-header">
+          <div class="risk-card-left"><span class="risk-num">08</span><div class="risk-title">Competitive Response from Incumbents</div></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+            <span class="risk-level risk-level-high">High</span>
+            <span class="risk-toggle">↓</span>
+          </div>
+        </div>
+        <div class="risk-body">If this startup shows early traction, Pepperfry (Norwest Venture Partners), Livspace (Goldman Sachs, KKR), and Reliance's Urban Ladder will respond. They have distribution, brand, and capital. The moat must be in AI quality, brand trust, or operational experience — built before incumbents can copy surface features.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SUCCESS METRICS
+══════════════════════════════════════ -->
+<section id="metrics">
+  <div class="container">
+    <div class="section-label reveal">Success Metrics</div>
+    <h2 class="section-title reveal reveal-delay-1">Three tiers. Nine metrics.<br>One north star: does the AI earn trust?</h2>
+
+    <div class="metrics-tabs reveal reveal-delay-2">
+      <div class="metrics-tab active" onclick="switchMetric(0)">Product Health</div>
+      <div class="metrics-tab" onclick="switchMetric(1)">Business Health</div>
+      <div class="metrics-tab" onclick="switchMetric(2)">Customer Health</div>
+    </div>
+
+    <div class="metrics-panel active" id="metricPanel0">
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Recommendation Acceptance Rate</div>
+        <div class="metric-kpi-val">25–30%</div>
+        <div class="metric-kpi-target">Target: Above 25%. Below 10% = red flag.</div>
+        <div class="metric-kpi-desc">The single most important early signal of AI quality. If users are ignoring recommendations, the AI is wrong — not just unhelpful.</div>
+        <div class="progress-ring-wrap">
+          <div class="progress-ring"><svg width="56" height="56"><circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/><circle cx="28" cy="28" r="22" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="97" stroke-linecap="round"/></svg><div class="progress-ring-val">30%</div></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4)">Target benchmark</div>
+        </div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">AI Context Accuracy Score</div>
+        <div class="metric-kpi-val">4.0 / 5</div>
+        <div class="metric-kpi-target">Target: 4+ average. Survey post-recommendation.</div>
+        <div class="metric-kpi-desc">How accurately did the AI understand and reflect the user's stated preferences? This is how you know if the hypothesis is working.</div>
+        <div class="progress-ring-wrap">
+          <div class="progress-ring"><svg width="56" height="56"><circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/><circle cx="28" cy="28" r="22" fill="none" stroke="#C9A84C" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="28" stroke-linecap="round"/></svg><div class="progress-ring-val">80%</div></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4)">of 5.0 target</div>
+        </div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Time to First Recommendation</div>
+        <div class="metric-kpi-val">&lt; 5 min</div>
+        <div class="metric-kpi-target">Target: Under 5 minutes from app open.</div>
+        <div class="metric-kpi-desc">Long, tedious onboarding flows kill activation. The AI must demonstrate value within the first session. Every extra minute of onboarding loses users.</div>
+      </div>
+    </div>
+
+    <div class="metrics-panel" id="metricPanel1">
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Conversion Rate</div>
+        <div class="metric-kpi-val">4–8%</div>
+        <div class="metric-kpi-target">Year 1: 4–8% → Year 2: 8–12%</div>
+        <div class="metric-kpi-desc">Global e-commerce averages 1.65%. AI personalization typically improves this 10–25%. Furniture AI should target 4–8% given the high-consideration nature of the category.</div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Average Order Value</div>
+        <div class="metric-kpi-val">₹25–60K</div>
+        <div class="metric-kpi-target">Target: ₹25,000–₹60,000 per order</div>
+        <div class="metric-kpi-desc">Unit economics for bulky delivery and installation only make sense above a certain AOV. Below ₹15,000, margins become very difficult to sustain with installation included.</div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Return Rate</div>
+        <div class="metric-kpi-val">&lt; 10%</div>
+        <div class="metric-kpi-target">Industry avg: 18–25%. Target: below 10%.</div>
+        <div class="metric-kpi-desc">If the AI is working correctly, return rate should be meaningfully lower than the 18–25% industry average. Sub-10% by Month 6 would be a strong validation of AI quality.</div>
+        <div class="progress-ring-wrap">
+          <div class="progress-ring"><svg width="56" height="56"><circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/><circle cx="28" cy="28" r="22" fill="none" stroke="#4A8C4A" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="97" stroke-linecap="round"/></svg><div class="progress-ring-val" style="color:#6DC46D">30%</div></div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4)">vs 18–25% industry</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics-panel" id="metricPanel2">
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Net Promoter Score</div>
+        <div class="metric-kpi-val">50+</div>
+        <div class="metric-kpi-target">Target: NPS above 50. Above 60 = category-defining.</div>
+        <div class="metric-kpi-desc">In a category driven by trust and word-of-mouth, NPS is the leading indicator of organic growth. Pepperfry and Livspace are estimated in the 20–35 range based on public review patterns.</div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">Installation Success Rate</div>
+        <div class="metric-kpi-val">90%+</div>
+        <div class="metric-kpi-target">First-attempt successful completion: above 90%.</div>
+        <div class="metric-kpi-desc">Installation failure is the last-mile trust destroyer. One failed installation undoes everything the AI experience built. This metric is often the one that determines whether a customer ever returns.</div>
+      </div>
+      <div class="metric-kpi">
+        <div class="metric-kpi-label">12-Month Repeat Purchase</div>
+        <div class="metric-kpi-val">25%+</div>
+        <div class="metric-kpi-target">30-day return: 40%+. 12-month repurchase: 25%+</div>
+        <div class="metric-kpi-desc">Home product purchases are infrequent but the journey takes time. Early return to platform even without purchasing indicates continued trust. 25% repurchase in 12 months would be exceptional for the category.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     ROADMAP
+══════════════════════════════════════ -->
+<section id="roadmap">
+  <div class="container">
+    <div class="section-label reveal">Product Roadmap</div>
+    <h2 class="section-title reveal reveal-delay-1">Every feature added too early<br>dilutes focus. This roadmap is<br>deliberately sequenced.</h2>
+
+    <div id="roadmapPhases" class="roadmap-phases reveal reveal-delay-2">
+      <div class="roadmap-phase active" onclick="switchRoadmap(0)">
+        <div class="roadmap-phase-num">Phase 01</div>
+        <div class="roadmap-phase-title">MVP</div>
+        <div class="roadmap-phase-period">Months 0–4</div>
+        <div class="roadmap-phase-dot"></div>
+      </div>
+      <div class="roadmap-phase" onclick="switchRoadmap(1)">
+        <div class="roadmap-phase-num">Phase 02</div>
+        <div class="roadmap-phase-title">Version 1</div>
+        <div class="roadmap-phase-period">Months 5–9</div>
+        <div class="roadmap-phase-dot"></div>
+      </div>
+      <div class="roadmap-phase" onclick="switchRoadmap(2)">
+        <div class="roadmap-phase-num">Phase 03</div>
+        <div class="roadmap-phase-title">Version 2</div>
+        <div class="roadmap-phase-period">Months 10–18</div>
+        <div class="roadmap-phase-dot"></div>
+      </div>
+      <div class="roadmap-phase" onclick="switchRoadmap(3)">
+        <div class="roadmap-phase-num">Phase 04</div>
+        <div class="roadmap-phase-title">Platform & Ecosystem</div>
+        <div class="roadmap-phase-period">Months 18–30</div>
+        <div class="roadmap-phase-dot"></div>
+      </div>
+    </div>
+
+    <div id="roadmapDetail" class="roadmap-detail active">
+      <div>
+        <div class="roadmap-detail-theme">"AI that earns trust."</div>
+        <div class="roadmap-detail-desc">The only goal of MVP is to prove that an AI-guided home buying experience produces better outcomes than catalog browsing — measured by lower return rates, higher NPS, and meaningful conversion. Serve one or two cities, at most. Curated catalog, not comprehensive. Hand-tuned AI onboarding.</div>
+        <div class="roadmap-features">
+          <div class="roadmap-feature">Conversational AI onboarding (room, family, aesthetic, budget)</div>
+          <div class="roadmap-feature">Curated product catalog: 50–200 hand-selected SKUs</div>
+          <div class="roadmap-feature">AI recommendation engine: 3–7 products for one room</div>
+          <div class="roadmap-feature">Accurate product detail pages with verified dimensions</div>
+          <div class="roadmap-feature">Delivery scheduling + installation booking</div>
+          <div class="roadmap-feature">Post-installation feedback collection (the AI's training data)</div>
+        </div>
+      </div>
+      <div>
+        <div class="roadmap-kpis">
+          <div class="roadmap-kpi"><div class="roadmap-kpi-label">MVP Goal</div><div class="roadmap-kpi-val">1 room, 1 city, proven</div></div>
+          <div class="roadmap-kpi"><div class="roadmap-kpi-label">Catalog Size</div><div class="roadmap-kpi-val">50–200 SKUs</div></div>
+          <div class="roadmap-kpi"><div class="roadmap-kpi-label">AI Output</div><div class="roadmap-kpi-val">3–7 products per session</div></div>
+          <div class="roadmap-kpi"><div class="roadmap-kpi-label">NOT in MVP</div><div class="roadmap-kpi-val">AR, multi-room, mobile app, EMI</div></div>
+          <div class="roadmap-kpi"><div class="roadmap-kpi-label">Critical Warning</div><div class="roadmap-kpi-val">Do not become a catalog + chatbot</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MVP FEATURES
+══════════════════════════════════════ -->
+<section id="mvp">
+  <div class="container">
+    <div class="section-label reveal">Core MVP Features</div>
+    <h2 class="section-title reveal reveal-delay-1">Six features. Each is<br>load-bearing. Remove any one<br>and the value prop collapses.</h2>
+
+    <div class="mvp-grid reveal reveal-delay-2">
+      <div class="mvp-card">
+        <div class="mvp-card-icon">💬</div>
+        <div class="mvp-card-title">Conversational AI Onboarding</div>
+        <div class="mvp-card-body">The product. Without a genuine conversation that captures context, the AI is just a filter. Captures room dimensions, family composition, aesthetic preferences (via image selection, not words), budget, lifestyle signals, and existing key pieces that must be matched.</div>
+        <div class="mvp-badge mvp-badge-critical">MVP Critical</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-card-icon">📦</div>
+        <div class="mvp-card-title">Curated Product Catalog</div>
+        <div class="mvp-card-body">50–200 hand-curated, accurately-photographed, dimension-verified, quality-checked SKUs. In V1, quantity is the enemy of quality. 200 perfect products are infinitely more valuable than 10,000 scraped products of variable quality.</div>
+        <div class="mvp-badge mvp-badge-critical">MVP Critical</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-card-icon">🧠</div>
+        <div class="mvp-card-title">AI Recommendation Engine</div>
+        <div class="mvp-card-body">Accounts for: spatial compatibility (does this sofa fit a 14×12 room?), aesthetic coordination (does this table match the mentioned floors?), budget constraints (total basket, not just individual items), and category completeness.</div>
+        <div class="mvp-badge mvp-badge-critical">MVP Critical</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-card-icon">📐</div>
+        <div class="mvp-card-title">Accurate Product Information</div>
+        <div class="mvp-card-body">Every product must have human-verified dimension specifications before going live. Online furniture return rates of 18–25% are largely driven by product-photo-vs-reality mismatch. AI recommendation quality is irrelevant if product data is wrong.</div>
+        <div class="mvp-badge mvp-badge-critical">MVP Critical</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-card-icon">🚚</div>
+        <div class="mvp-card-title">Delivery + Installation Booking</div>
+        <div class="mvp-card-body">The end-to-end promise is the core differentiator. If the platform sells products but leaves delivery and installation for users to figure out, it becomes just another e-commerce site. Installation booking must be integrated into checkout.</div>
+        <div class="mvp-badge mvp-badge-important">MVP Important</div>
+      </div>
+      <div class="mvp-card">
+        <div class="mvp-card-icon">⭐</div>
+        <div class="mvp-card-title">Post-Installation Feedback</div>
+        <div class="mvp-card-body">This is how the AI learns. Every completed installation is a labeled training example: did the product fit? Did it look like the photo? Did it match the room? Without systematic feedback, the AI cannot improve. This is the data flywheel.</div>
+        <div class="mvp-badge mvp-badge-important">MVP Important</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PRODUCT IDEAS
+══════════════════════════════════════ -->
+<section id="ideas">
+  <div class="container">
+    <div class="section-label reveal">High-Impact Product Ideas</div>
+    <h2 class="section-title reveal reveal-delay-1">15 ideas evaluated across<br>problem, impact, effort, and priority.</h2>
+
+    <div class="ideas-grid reveal reveal-delay-2">
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 01</span><span class="idea-priority idea-priority-mvp">MVP Critical</span></div>
+        <div class="idea-title">AI Room Context Interview</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Users can't describe what they want in product terms. They know how they want the room to feel.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Core differentiation. Directly reduces return rates. Without this, there's no product.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 02</span><span class="idea-priority idea-priority-v1">V1 High</span></div>
+        <div class="idea-title">Aesthetic Matching via Image Selection</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Asking people to describe aesthetic in words is ineffective. Show 15 room images, they select 5 they love. Tells the AI more in 60 seconds than 20 text questions.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">High — dramatically improves recommendation relevance.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 03</span><span class="idea-priority idea-priority-v1">V1 High</span></div>
+        <div class="idea-title">"Complete This Room" Feature</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Users who buy a sofa don't always know what else they need. The AI sees what they've bought and identifies what's missing.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High — direct AOV uplift through intelligent bundling. This is the fastest path to higher basket sizes.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 04</span><span class="idea-priority idea-priority-mvp">MVP Important</span></div>
+        <div class="idea-title">Spatial Compatibility Checker</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">The #1 reason for furniture returns is size mismatch. An AI that refuses to recommend a 3-seat sofa for a room where only a 2-seat fits prevents the return before it happens.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High — directly reduces return rates and customer frustration. Delivers on the core promise.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 05</span><span class="idea-priority idea-priority-v1">V1 Medium</span></div>
+        <div class="idea-title">Budget Allocation AI</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">A user with ₹3L for a bedroom doesn't know whether to spend ₹1.5L on the bed or ₹50K. AI recommends optimal budget allocation based on lifestyle signals and usage patterns.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Medium-High — helps users feel guided and confident. Reduces post-purchase regret.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 06</span><span class="idea-priority idea-priority-v1">V1 High</span></div>
+        <div class="idea-title">"Before You Buy" Reality Check</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Users overestimate visual impact of single products and underestimate compatibility issues. The AI should tell users when a product they love doesn't actually fit their brief — even if it reduces the sale.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">High long-term — builds extraordinary trust. Short-term might reduce conversion marginally. Worth it.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low-Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 07</span><span class="idea-priority idea-priority-v2">V2 Medium</span></div>
+        <div class="idea-title">Real Home Gallery</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">People trust other real customers more than product photography. A gallery of actual customer rooms with the exact products linked directly to purchase.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">High — social proof directly attached to purchasable products. The most credible trust signal in the category.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 08</span><span class="idea-priority idea-priority-v2">V2 High</span></div>
+        <div class="idea-title">Developer Partnership Portal</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Real estate developers handing over hundreds of bare apartments simultaneously. If partnered, each handover becomes a guaranteed high-value lead with minimal acquisition cost.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High — B2B acquisition channel with excellent unit economics. Each developer partnership = hundreds of warm leads.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 09</span><span class="idea-priority idea-priority-v2">V2 High</span></div>
+        <div class="idea-title">Fixed-Price Room Packages</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Decision fatigue so severe that some users want to be told: "For ₹2L, here is the complete living room you should buy." Removes decision-making entirely.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">High — maximum conversion for overwhelmed buyers. Curated packages at ₹2L, ₹5L, ₹10L with AI customization within fixed parameters.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 10</span><span class="idea-priority idea-priority-v2">V2 Medium</span></div>
+        <div class="idea-title">Augmented Reality Room Preview</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">"Will this sofa look right in my living room?" — the single most common anxiety in online furniture buying.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Products with AR show 94% higher conversion rates. Powerful but technically heavy — don't let it delay MVP. V2 is the right time.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">High</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 11</span><span class="idea-priority idea-priority-v2">V2–V3</span></div>
+        <div class="idea-title">Room Refresh AI</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Returning customers don't need to re-explain their entire home. The AI remembers what you bought, evaluates what might need upgrading, and proactively suggests it at the right moment.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High — drives repeat purchase, the hardest problem in home furnishing. This is how the platform becomes a long-term home partner, not a one-time store.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">High</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 12</span><span class="idea-priority idea-priority-v1">V1 Medium</span></div>
+        <div class="idea-title">White-Glove Concierge Tier</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Premium buyers (₹20L+ per project) want a human who is accountable. AI pre-qualifies and hands off to 3–5 senior interior consultants who own the end outcome.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High on AOV — single deals can be ₹10–30L. Also provides human oversight while AI matures. Early revenue source that funds AI improvement.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low-Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 13</span><span class="idea-priority idea-priority-v1">V1 High</span></div>
+        <div class="idea-title">"Does This Work With What I Have?"</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Users already own some furniture. AI checks if a new purchase is aesthetically and spatially compatible with existing pieces. User describes or photographs what they own.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">High — reduces returns and increases buyer confidence for partial-furnishing scenarios (most customers have some existing furniture).</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 14</span><span class="idea-priority idea-priority-v1">V1 Important</span></div>
+        <div class="idea-title">Installation Tracking & Scheduling</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">Delivery and installation windows are notoriously opaque in India. "Your delivery will arrive between 9am and 6pm" is not a customer experience. Real-time tracking changes this.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Medium-High — directly impacts NPS and post-purchase satisfaction. The moment of delivery is often the moment of truth for the customer's trust level.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Medium</span></span></div>
+        </div>
+      </div>
+      <div class="idea-card" onclick="toggleIdea(this)">
+        <div class="idea-card-top"><span class="idea-num">Idea 15</span><span class="idea-priority idea-priority-v1">V1 Important</span></div>
+        <div class="idea-title">EMI and BNPL Integration</div>
+        <div class="idea-expand">
+          <div class="idea-row"><span class="idea-row-label">Problem Solved</span><span class="idea-row-val">A ₹60,000 dining set is unaffordable as a lump sum for many target customers, but entirely manageable at ₹5,000/month. Financing unlocks a much larger addressable market.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Business Impact</span><span class="idea-row-val">Very High — can expand TAM by 30–40% by making large purchases accessible. Integration with Bajaj Finserv or equivalent is relatively straightforward.</span></div>
+          <div class="idea-row"><span class="idea-row-label">Effort</span><span class="effort-bar"><div class="effort-dot filled"></div><div class="effort-dot filled"></div><div class="effort-dot"></div><div class="effort-dot"></div><div class="effort-dot"></div><span style="font-size:12px;margin-left:6px;color:var(--warm-gray)">Low-Medium</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     USER JOURNEY
+══════════════════════════════════════ -->
+<section id="journey">
+  <div class="container">
+    <div class="section-label reveal">User Journey</div>
+    <h2 class="section-title reveal reveal-delay-1">Meet Priya. She has 87 browser<br>tabs open and zero decisions made.</h2>
+
+    <div class="journey-steps reveal reveal-delay-2" id="journeySteps">
+      <div class="journey-step active" onclick="switchJourney(0)">
+        <div class="journey-step-num">01</div>
+        <div class="journey-step-label">Discovery</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(1)">
+        <div class="journey-step-num">02</div>
+        <div class="journey-step-label">Onboarding</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(2)">
+        <div class="journey-step-num">03</div>
+        <div class="journey-step-label">AI Rec</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(3)">
+        <div class="journey-step-num">04</div>
+        <div class="journey-step-label">Trust</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(4)">
+        <div class="journey-step-num">05</div>
+        <div class="journey-step-label">Checkout</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(5)">
+        <div class="journey-step-num">06</div>
+        <div class="journey-step-label">Delivery</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(6)">
+        <div class="journey-step-num">07</div>
+        <div class="journey-step-label">After-Sales</div>
+        <div class="journey-step-dot"></div>
+      </div>
+      <div class="journey-connector"></div>
+      <div class="journey-step" onclick="switchJourney(7)">
+        <div class="journey-step-num">08</div>
+        <div class="journey-step-label">Retention</div>
+        <div class="journey-step-dot"></div>
+      </div>
+    </div>
+
+    <div class="journey-detail reveal reveal-delay-3" id="journeyDetail">
+      <div class="journey-detail-stage">Stage 01 — Discovery</div>
+      <div class="journey-detail-title">Priya, 29. New keys to her first 2BHK in Bengaluru.</div>
+      <div class="journey-detail-desc">She's overwhelmed. Three weeks of browsing Pepperfry, Urban Ladder, and IKEA online. A friend who moved recently mentions this platform: "Just talk to it. It figured out my entire living room in 20 minutes." The landing screen says: "Tell us about the home you're building. We'll handle the rest."</div>
+      <div class="journey-persona-quote">"I have 87 browser tabs open and I still don't know what to buy. There are too many choices and no way to know if any of them are right for my room."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     AI STRATEGY
+══════════════════════════════════════ -->
+<section id="ai-strategy">
+  <div class="container">
+    <div class="section-label reveal">AI Strategy</div>
+    <h2 class="section-title reveal reveal-delay-1">Where AI earns its place.<br>Where humans must remain.</h2>
+
+    <div class="ai-split reveal reveal-delay-2">
+      <div class="ai-col ai-col-yes">
+        <div class="ai-col-label"><div class="ai-col-label-dot"></div>Where AI should be used</div>
+        <div class="ai-item"><span class="ai-item-icon">💬</span><div><div class="ai-item-title">Need Elicitation</div>Translating vague lifestyle signals into specific product requirements. The highest-value use of AI in the entire product.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">📐</span><div><div class="ai-item-title">Compatibility and Constraint Matching</div>Silently enforce hard constraints — never recommend a product that doesn't fit, exceeds budget, or clashes with existing pieces.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">🎨</span><div><div class="ai-item-title">Aesthetic Coordination Across Products</div>Ensure recommendations form a coherent aesthetic — matching wood tones, color palettes, stylistic eras. This is where AI outperforms any filter.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">🧠</span><div><div class="ai-item-title">Personalization Over Time</div>Accumulate a home profile with every purchase, preference, and feedback signal — making future recommendations faster and more accurate.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">📦</span><div><div class="ai-item-title">Inventory-Aware Recommendations</div>Never recommend a product that's out of stock or has a delivery time that conflicts with the user's stated move-in date.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">🔮</span><div><div class="ai-item-title">Post-Purchase Intelligence</div>Predict what the user needs next based on what they already own — and present it at the right moment.</div></div>
+      </div>
+      <div class="ai-col ai-col-no">
+        <div class="ai-col-label"><div class="ai-col-label-dot"></div>Where humans must remain</div>
+        <div class="ai-item"><span class="ai-item-icon">🔍</span><div><div class="ai-item-title">Final Quality Inspection of Catalog Products</div>AI cannot assess whether a sofa's cushion firmness, wood grain quality, or stitching durability meets the standard. Humans must physically evaluate before catalog listing.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">🔨</span><div><div class="ai-item-title">Installation Execution</div>AI-dispatched, AI-tracked installation crew is fine. But installation itself is a human craft. Automation pressure must never squeeze out the time needed to do it well.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">🚨</span><div><div class="ai-item-title">High-Emotion Complaint Resolution</div>When something goes wrong — damaged delivery, missed window, product mismatch — the customer must speak to a human. AI-first complaint handling at high-stakes moments destroys trust faster than anything else.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">💎</span><div><div class="ai-item-title">Pricing Premium Products</div>For purchases above ~₹2L, a human interior consultant should validate the recommendation. Not because AI is incapable — because the trust required demands human accountability.</div></div>
+        <div class="ai-item"><span class="ai-item-icon">✅</span><div><div class="ai-item-title">Final Purchase Confirmation</div>Always confirm before placing an order, processing payment, or scheduling delivery. Never fully automate checkout. The user must be in explicit control of the final transaction. Bain: "the most enthusiastic AI accelerators still demand human involvement at key moments."</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     90 DAYS PLAN
+══════════════════════════════════════ -->
+<section id="plan90">
+  <div class="container">
+    <div class="section-label reveal">First 90 Days</div>
+    <h2 class="section-title reveal reveal-delay-1">If I join as the first Product hire,<br>here is exactly how I contribute.</h2>
+
+    <div class="plan-timeline reveal reveal-delay-2">
+      <div class="plan-item highlight">
+        <div class="plan-item-time">
+          <div class="plan-item-time-label">Week 1</div>
+          <div class="plan-item-time-desc">Listen & Map</div>
+        </div>
+        <div class="plan-item-marker">
+          <div class="plan-item-dot"></div>
+          <div class="plan-item-line"></div>
+        </div>
+        <div class="plan-item-content">
+          <div class="plan-item-goal">Goal: Understand everything before suggesting anything</div>
+          <div class="plan-item-title">Listen and Map the Landscape</div>
+          <div class="plan-item-tasks">
+            <div class="plan-item-task">Review all existing PRDs, wireframes, and product documentation in full</div>
+            <div class="plan-item-task">Shadow the founder for 2–3 meetings to understand product philosophy</div>
+            <div class="plan-item-task">Map competitive landscape independently — don't just read the founder's view</div>
+            <div class="plan-item-task">Set up accounts on Pepperfry, Livspace, HomeLane, IKEA India</div>
+            <div class="plan-item-task">Complete one full purchase journey on at least 2 competitor platforms, documenting every friction point</div>
+          </div>
+          <div class="plan-item-deliverable">2-page Current Landscape Audit — what exists, gaps, where competitors are failing based on direct experience</div>
+        </div>
+      </div>
+
+      <div class="plan-item">
+        <div class="plan-item-time">
+          <div class="plan-item-time-label">Week 2</div>
+          <div class="plan-item-time-desc">Synthesize</div>
+        </div>
+        <div class="plan-item-marker">
+          <div class="plan-item-dot"></div>
+          <div class="plan-item-line"></div>
+        </div>
+        <div class="plan-item-content">
+          <div class="plan-item-goal">Goal: Bring the outside world in</div>
+          <div class="plan-item-title">Synthesize and Question Assumptions</div>
+          <div class="plan-item-tasks">
+            <div class="plan-item-task">Conduct 5 informal user interviews with recent furniture/home product buyers</div>
+            <div class="plan-item-task">Questions: How long did it take? Where did you shop? What was the worst moment?</div>
+            <div class="plan-item-task">Read the last 500 public reviews on Pepperfry, Livspace, and Urban Ladder</div>
+            <div class="plan-item-task">Categorize by problem type and frequency</div>
+          </div>
+          <div class="plan-item-deliverable">User Pain Hierarchy — which problems are most common and most emotionally costly</div>
+        </div>
+      </div>
+
+      <div class="plan-item highlight">
+        <div class="plan-item-time">
+          <div class="plan-item-time-label">Month 1</div>
+          <div class="plan-item-time-desc">Build</div>
+        </div>
+        <div class="plan-item-marker">
+          <div class="plan-item-dot"></div>
+          <div class="plan-item-line"></div>
+        </div>
+        <div class="plan-item-content">
+          <div class="plan-item-goal">Goal: Stop observing, start building</div>
+          <div class="plan-item-title">Own One Critical Piece</div>
+          <div class="plan-item-tasks">
+            <div class="plan-item-task">Own the design of the AI onboarding conversation flow</div>
+            <div class="plan-item-task">Define every question, its purpose, what data it captures, how AI uses it</div>
+            <div class="plan-item-task">Build a Figma or web prototype of the 7-minute onboarding</div>
+            <div class="plan-item-task">Test with 8–10 people — observe without guiding, capture everything</div>
+          </div>
+          <div class="plan-item-deliverable">Tested, iterated onboarding flow with documented evidence for every design decision</div>
+        </div>
+      </div>
+
+      <div class="plan-item">
+        <div class="plan-item-time">
+          <div class="plan-item-time-label">Month 2</div>
+          <div class="plan-item-time-desc">Measure</div>
+        </div>
+        <div class="plan-item-marker">
+          <div class="plan-item-dot"></div>
+          <div class="plan-item-line"></div>
+        </div>
+        <div class="plan-item-content">
+          <div class="plan-item-goal">Goal: Build measurement infrastructure before launch</div>
+          <div class="plan-item-title">Data and Metrics Foundation</div>
+          <div class="plan-item-tasks">
+            <div class="plan-item-task">Define the exact metrics to track in the first 6 months</div>
+            <div class="plan-item-task">Work with engineering to instrument product: recommendation acceptance rate, time-to-decision, return rate</div>
+            <div class="plan-item-task">Set up Mixpanel/Amplitude or even Google Sheets dashboard tracking metrics daily</div>
+            <div class="plan-item-task">Design post-installation survey, in-app rating system, feedback-to-AI pipeline</div>
+          </div>
+          <div class="plan-item-deliverable">Metrics framework document and functioning basic dashboard</div>
+        </div>
+      </div>
+
+      <div class="plan-item highlight">
+        <div class="plan-item-time">
+          <div class="plan-item-time-label">Month 3</div>
+          <div class="plan-item-time-desc">Decide</div>
+        </div>
+        <div class="plan-item-marker">
+          <div class="plan-item-dot"></div>
+        </div>
+        <div class="plan-item-content">
+          <div class="plan-item-goal">Goal: Make real product calls with evidence</div>
+          <div class="plan-item-title">Product Decisions Under Pressure</div>
+          <div class="plan-item-tasks">
+            <div class="plan-item-task">Lead the MVP feature prioritization session: "What is load-bearing? What can wait?"</div>
+            <div class="plan-item-task">Identify and document 3 scope items the team wants in MVP but should not build yet</div>
+            <div class="plan-item-task">Write the first product spec for the AI recommendation engine (inputs, outputs, edge cases, failure modes)</div>
+            <div class="plan-item-task">Coordinate with engineering on catalog data pipeline: how products get added, verified, made recommendation-eligible</div>
+          </div>
+          <div class="plan-item-deliverable">Locked MVP scope document, recommendation engine spec, rationale for every in/out decision</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOUNDER QUESTIONS
+══════════════════════════════════════ -->
+<section id="questions">
+  <div class="container">
+    <div class="section-label reveal">Questions for the Founder</div>
+    <h2 class="section-title reveal reveal-delay-1">The questions that demonstrate<br>genuine product thinking.</h2>
+
+    <div class="questions-grid reveal reveal-delay-2">
+      <div class="question-card">
+        <div class="question-num">01</div>
+        <div class="question-text">Are you planning to build a proprietary recommendation model, or fine-tune an existing LLM? What's the training data strategy for the early days when you have almost no user behavior to learn from?</div>
+        <div class="question-tag">AI Architecture</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">02</div>
+        <div class="question-text">Is this a marketplace, a direct-to-consumer inventory model, or a curated dropship? The answer has enormous implications for quality control, margin, and the ability to actually guarantee the experience the AI promises.</div>
+        <div class="question-tag">Business Model</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">03</div>
+        <div class="question-text">When something goes wrong after installation — a product breaks, a piece is missing, a measurement was wrong — what is the recovery protocol? Who owns that moment operationally? This determines NPS more than anything else.</div>
+        <div class="question-tag">Operations</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">04</div>
+        <div class="question-text">Livspace had the same "end-to-end" vision and has struggled significantly with execution quality and profitability. What specific lessons from their model have shaped how you're designing the operational infrastructure here?</div>
+        <div class="question-tag">Competitive Learning</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">05</div>
+        <div class="question-text">In the first 60 days, the AI has no behavioral data. What is the explicit strategy for making early recommendations good enough that they build trust rather than erode it?</div>
+        <div class="question-tag">Cold Start</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">06</div>
+        <div class="question-text">Is the margin model product-based, service-based, subscription-based, or something else? Understanding this changes every product decision — from catalog depth to AI feature investment.</div>
+        <div class="question-tag">Monetization</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">07</div>
+        <div class="question-text">Which city are we starting in, and why? The answer should be strategic — first-homeowner density, vendor relationships, delivery infrastructure — not just where the team is based.</div>
+        <div class="question-tag">Go-to-Market</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">08</div>
+        <div class="question-text">At Expedia, the core challenge was converting complex, overwhelming travel choices into confident bookings. What specific lessons from that experience translate directly here — and what is dangerously different about home products?</div>
+        <div class="question-tag">Founder Background</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">09</div>
+        <div class="question-text">If the AI recommends a dining set that the customer receives and hates — not because of a quality issue, but because the AI misjudged their taste — what is the policy? Whose mistake is it, and who bears the cost?</div>
+        <div class="question-tag">Trust & Policy</div>
+      </div>
+      <div class="question-card">
+        <div class="question-num">10</div>
+        <div class="question-text">If Pepperfry raises ₹200 crore tomorrow and hires 50 AI engineers, what is the moat that makes us still the better choice 18 months from now?</div>
+        <div class="question-tag">Defensibility</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     RECOMMENDATIONS
+══════════════════════════════════════ -->
+<section id="recommendations">
+  <div class="container">
+    <div class="section-label reveal">Top 10 Recommendations</div>
+    <h2 class="section-title reveal reveal-delay-1">Before a single line of code<br>is written.</h2>
+
+    <div class="recs-list reveal reveal-delay-2">
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">1</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Conduct 20 Deep User Interviews Before Designing Anything</div>
+          <div class="rec-desc">Not surveys. Not focus groups. 45-minute conversations with people who have purchased furniture or home products in the last 12 months. Understand the emotional journey, not just the transactional one. Until you have done this, every product decision is a guess dressed up as strategy.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">2</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Define Exactly What "The AI Understands Your Context" Means, In Concrete Terms</div>
+          <div class="rec-desc">Write down, in one page: what specific inputs does the AI collect? What specific outputs does it produce? What specific mistakes is it designed to prevent? "AI that understands your lifestyle" is a tagline. The team needs a technical definition before they can build toward it.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">3</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Choose One City, One Room Type, One Customer Segment for MVP</div>
+          <div class="rec-desc">Do not launch in three cities for living rooms and bedrooms targeting everyone from young professionals to premium buyers. Choose: Bengaluru, living rooms, new first-time homeowners aged 26–34. Prove that market first. Expansion should feel like a logical next step after proof.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">4</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Source and Verify the First 100 Products Yourself</div>
+          <div class="rec-desc">Don't automate catalog ingestion for the first 100 SKUs. Have team members physically evaluate every product. Visit showrooms, check dimensions against specifications, assess quality against price. Return rates of 18–25% are caused by product-photo-vs-reality mismatch. Be obsessive about catalog accuracy from Day 1.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">5</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Do NOT Build the AI First. Build the Conversation First.</div>
+          <div class="rec-desc">Start by manually running the "AI conversation" with real users using a Figma prototype and a team member playing the role of the AI — the Wizard of Oz method. Validate whether the conversation structure creates value before a single line of ML code is written. Save 2–3 months of development time.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">6</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Design the Returns Policy Before Designing the Product</div>
+          <div class="rec-desc">When the AI makes a wrong recommendation and the customer wants to return a ₹50,000 sofa, what happens? This policy must be decided by the founders, not invented in the moment. It will determine operating cost structure, supplier negotiations, and customer trust.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">7</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Do Not Overinvest in AR in V1</div>
+          <div class="rec-desc">AR visualization is compelling — products with AR show 94% higher conversion rates. But AR requires 3D models for every SKU and can consume 3–6 months of engineering. In V1, accurate 2D photography, honest dimensions, and real customer photos do more for trust. AR belongs in V2.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">8</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Hire a Human Interior Advisor for the First 6 Months, Alongside the AI</div>
+          <div class="rec-desc">The AI will make mistakes early. Rather than letting those mistakes become public trust disasters, have one excellent human interior advisor who reviews every recommendation before it's shown — and personally handles every complaint involving a recommendation error. This human is also the best source of AI training data.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">9</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Instrument Everything From Day 1</div>
+          <div class="rec-desc">Every screen click, every AI conversation turn, every recommendation shown, every recommendation ignored, every checkout abandoned — tracked from the very first user. Early data is the most precious data a product company has. The failure to instrument early is one of the most common and most expensive mistakes early-stage teams make.</div>
+        </div>
+      </div>
+      <div class="rec-item">
+        <div class="rec-num"><div class="rec-num-inner">10</div></div>
+        <div class="rec-body">
+          <div class="rec-title">Set a Definition of Success at Month 6 Right Now, and Resist Changing It</div>
+          <div class="rec-desc">Before building, the founders and product team must agree: what does success look like at Month 6? 100 completed orders with NPS above 50? Return rate below 10%? Recommendation acceptance above 30%? Whatever it is, write it down and commit. Early-stage companies are under constant pressure to redefine success when reality is difficult. The companies that survive held their hypothesis long enough to actually test it.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FINAL SECTION
+══════════════════════════════════════ -->
+<section id="final">
+  <div class="container">
+    <div class="final-label reveal">Final Assessment</div>
+    <h2 class="final-title reveal reveal-delay-1">This startup is pursuing<br>a genuine and <em>important</em> problem.</h2>
+
+    <div class="final-pillars reveal reveal-delay-2">
+      <div class="final-pillar">
+        <div class="final-pillar-num">01</div>
+        <div class="final-pillar-title">AI quality is everything</div>
+        <div class="final-pillar-body">If the AI recommendations are not meaningfully better than browsing, the entire differentiation collapses. The company must invest in AI quality before it invests in marketing, city expansion, or catalog breadth. This is non-negotiable.</div>
+      </div>
+      <div class="final-pillar">
+        <div class="final-pillar-num">02</div>
+        <div class="final-pillar-title">Operational quality is non-negotiable</div>
+        <div class="final-pillar-body">Livspace lost more than a crore per crore of revenue trying to solve exactly this problem and still failed its customers. The delivery and installation experience cannot be an afterthought. It must be owned, controlled, and relentlessly improved.</div>
+      </div>
+      <div class="final-pillar">
+        <div class="final-pillar-num">03</div>
+        <div class="final-pillar-title">The first 50 customers define the company</div>
+        <div class="final-pillar-body">Word of mouth in the home-buying community is powerful. 50 customers who have a perfect experience — and photograph it and share it — are worth 5,000 paid-acquisition customers who had a mediocre one. The MVP must be obsessively focused on delivering a perfect experience for those first 50.</div>
+      </div>
+    </div>
+
+    <div class="final-sign reveal reveal-delay-3">
+      <p>Product Strategy Document — Prepared as a first Product hire brief before the first planning sprint</p>
+      <p style="margin-top:8px;color:rgba(255,255,255,0.2)">All statistics sourced from publicly available research. All market projections from named industry sources and should be independently verified before use in investor materials.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Back to Top -->
+<div id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+// ── PROGRESS BAR ──
+function updateProgress(){
+  const scrolled = window.scrollY;
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progress').style.width = (scrolled/total*100)+'%';
+}
+
+// ── NAV ──
+function updateNav(){
+  const nav = document.getElementById('nav');
+  if(window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+
+  // Active nav link
+  const sections = ['executive','problem','market','customers','competitors','roadmap','final'];
+  const links = document.querySelectorAll('.nav-links a');
+  let current = '';
+  sections.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && window.scrollY >= el.offsetTop - 120) current = '#'+id;
+  });
+  links.forEach(l=>{
+    l.classList.remove('active');
+    if(l.getAttribute('href') === current) l.classList.add('active');
+  });
+}
+
+// Back to top
+function updateBackTop(){
+  const btn = document.getElementById('back-top');
+  if(window.scrollY > 400) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+}
+
+window.addEventListener('scroll',()=>{
+  updateProgress();
+  updateNav();
+  updateBackTop();
+  revealElements();
+},{ passive:true });
+
+// ── MOBILE MENU ──
+function toggleMenu(){document.getElementById('mobileNav').classList.toggle('open')}
+function closeMenu(){document.getElementById('mobileNav').classList.remove('open')}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('nav') && !e.target.closest('.mobile-nav')) closeMenu();
+});
+
+// ── REVEAL ──
+function revealElements(){
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    if(rect.top < window.innerHeight - 60) el.classList.add('visible');
+  });
+}
+setTimeout(revealElements,100);
+
+// ── HERO COUNTER ──
+function animateCounter(el){
+  // Support both data-count (hero) and data-target (problem section)
+  const target = parseFloat(el.dataset.count || el.dataset.target);
+  if(isNaN(target)) return;
+  const suffix = el.dataset.suffix || '';
+  const prefix = el.dataset.prefix || '';
+  const isDecimal = target % 1 !== 0;
+  const duration = 1600;
+  const start = performance.now();
+  function step(now){
+    const progress = Math.min((now-start)/duration,1);
+    const ease = 1-Math.pow(1-progress,3);
+    const current = target * ease;
+    el.textContent = prefix + (isDecimal ? current.toFixed(2) : Math.round(current)) + suffix;
+    if(progress < 1) requestAnimationFrame(step);
+    else el.textContent = prefix + (isDecimal ? target.toFixed(2) : target) + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+const counterObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      // Animate both data-count (hero stats) and data-target (problem section)
+      e.target.querySelectorAll('[data-count],[data-target]').forEach(animateCounter);
+      counterObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.hero-stats,.stat-grid').forEach(el=>counterObs.observe(el));
+
+// ── PERSONA TABS ──
+function switchPersona(idx){
+  document.querySelectorAll('.persona-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.persona-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+
+// ── COMPETITOR CARDS ──
+function toggleComp(card){
+  const exp = card.querySelector('.comp-expand');
+  exp.classList.toggle('open');
+}
+
+// ── RISK CARDS ──
+function toggleRisk(card){
+  card.classList.toggle('open');
+  const body = card.querySelector('.risk-body');
+  body.classList.toggle('open');
+}
+
+// ── METRICS TABS ──
+function switchMetric(idx){
+  document.querySelectorAll('.metrics-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.metrics-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+}
+
+// ── ROADMAP ──
+const roadmapData = [
+  {
+    theme:'"AI that earns trust."',
+    desc:'The only goal of MVP is to prove that an AI-guided home buying experience produces better outcomes than catalog browsing. Serve one or two cities at most. Curated catalog, not comprehensive. Hand-tuned AI onboarding. Do not let yourself get pressured into becoming a catalog platform with an AI chatbot bolted on.',
+    features:['Conversational AI onboarding (room, family, aesthetic, budget)','Curated product catalog: 50–200 hand-selected SKUs','AI recommendation engine: 3–7 products for one room','Accurate product detail pages with verified dimensions','Delivery scheduling + installation booking','Post-installation feedback collection (the data flywheel)'],
+    kpis:[{l:'MVP Goal',v:'1 room, 1 city, proven'},{l:'Catalog',v:'50–200 SKUs'},{l:'AI Output',v:'3–7 per session'},{l:'Not in MVP',v:'AR, multi-room, mobile, EMI'}]
+  },
+  {
+    theme:'"AI that remembers you."',
+    desc:'By Year 2, the AI has actual purchase data and behavioral signals. Recommendations improve meaningfully. The platform adds memory — it knows what you bought, what you liked, how your home evolved. Multi-city expansion (3–5 metros). Category depth expands.',
+    features:['Multi-room AI conversation across 2–3 rooms','Cross-category recommendations (furniture + lighting + décor)','Room visualization tool (basic 2D layout)','EMI/financing integration (Bajaj Finserv equivalent)','Referral program and user accounts','1 additional metro city expansion'],
+    kpis:[{l:'Goal',v:'Multi-room, multi-city'},{l:'Catalog',v:'500–1,000 SKUs'},{l:'Cities',v:'2–3 metros'},{l:'Key Unlock',v:'Cross-category AOV uplift'}]
+  },
+  {
+    theme:'"AI that knows your home."',
+    desc:'Trust at scale. First repeat purchase cycle, data-driven personalization, B2B opportunity. The AI begins predicting needs before users explicitly express them.',
+    features:['AR product placement in your actual room','AI style profile from purchase and browse history','"Room refresh" — AI audits existing home, suggests upgrades','Interior designer B2B portal','Developer partnership program (new homeowner referrals)','Mobile app (iOS + Android)'],
+    kpis:[{l:'Catalog',v:'2,000–5,000 SKUs'},{l:'Cities',v:'5+ metros'},{l:'B2B',v:'Designer + developer portals'},{l:'New',v:'Mobile app launch'}]
+  },
+  {
+    theme:'"The home as a relationship."',
+    desc:'New revenue streams, reduced acquisition costs through ecosystem flywheel. By Year 5, the most ambitious version of this company is not a furniture platform — it is the intelligence layer for how people manage and evolve their homes.',
+    features:['Product subscription / upgrade programs (trade-in)','Warranty and maintenance marketplace','Pre-furnished apartment partnerships','AI-generated complete interior packages at fixed prices','Tier-2 city expansion','API for third-party integration (developers, insurance)'],
+    kpis:[{l:'Tier-2',v:'Pune, Ahmedabad, Hyd, Chd'},{l:'Revenue',v:'Services + subscriptions'},{l:'B2B API',v:'Developer + insurance integrations'},{l:'Vision',v:'Home intelligence platform'}]
+  }
+];
+
+function switchRoadmap(idx){
+  document.querySelectorAll('.roadmap-phase').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  const d = roadmapData[idx];
+  const detail = document.getElementById('roadmapDetail');
+  detail.classList.add('active');
+  detail.innerHTML = `
+    <div>
+      <div class="roadmap-detail-theme">${d.theme}</div>
+      <div class="roadmap-detail-desc">${d.desc}</div>
+      <div class="roadmap-features">${d.features.map(f=>`<div class="roadmap-feature">${f}</div>`).join('')}</div>
+    </div>
+    <div>
+      <div class="roadmap-kpis">${d.kpis.map(k=>`<div class="roadmap-kpi"><div class="roadmap-kpi-label">${k.l}</div><div class="roadmap-kpi-val">${k.v}</div></div>`).join('')}</div>
+    </div>`;
+}
+
+// ── IDEAS EXPAND ──
+function toggleIdea(card){
+  const exp = card.querySelector('.idea-expand');
+  exp.classList.toggle('open');
+}
+
+// ── JOURNEY ──
+const journeyData = [
+  {stage:'Stage 01 — Discovery', title:'Priya, 29. New keys to her first 2BHK in Bengaluru.', desc:'She\'s overwhelmed. Three weeks of browsing Pepperfry, Urban Ladder, and IKEA online. A friend who moved recently mentions this platform: "Just talk to it. It figured out my entire living room in 20 minutes." The landing screen says: "Tell us about the home you\'re building. We\'ll handle the rest."', quote:'"I have 87 browser tabs open and I still don\'t know what to buy. There are too many choices and no way to know if any of them are right for my room."'},
+  {stage:'Stage 02 — Onboarding', title:'Not a form. A conversation.', desc:'The AI asks: "Which room are you starting with?" → Living room. "What are the rough dimensions?" → She measures. 14×15 feet. "Who lives here with you?" → Just me, but family visits often. "Show us rooms you love." → She selects 5 images. The AI reads: mid-century modern, warm wood tones, clean lines. "What\'s your budget?" → Around ₹80,000. The conversation takes 7 minutes.', quote:'"It felt like talking to someone who actually understood what I was trying to say — not filling out a filter form."'},
+  {stage:'Stage 03 — AI Recommendation', title:'Not 600 products. 6.', desc:'The AI presents 6 products — not 600. A sofa, a coffee table, a bookshelf, a floor lamp, and two accent chairs. Each is tagged: "Fits 14×15 room", "Mid-century style", "Within budget". The total is ₹74,500. The AI explains: "This combination leaves 40% floor space clear — good for when family visits. The warm walnut tones across all three wooden pieces will create a cohesive look without appearing matched and corporate."', quote:'"I\'ve never seen anything like this before. I don\'t have to evaluate anything. I just have to decide whether I trust it."'},
+  {stage:'Stage 04 — Trust Building', title:'She clicks on the sofa. Real photos. Real reviews. Real policy.', desc:'Real customer photos from 3 other Bengaluru homes. A video of the installation process. Accurate dimensions. A return policy that says: "If this doesn\'t look like the photos in your home, we\'ll collect it, no questions." She reads 4 reviews. All positive. One says: "I was nervous buying a sofa without sitting on it. But it was better than I imagined."', quote:'"The return policy told me they were confident it was right. That made me confident too."'},
+  {stage:'Stage 05 — Checkout', title:'₹74,500 → ₹12,417/month', desc:'She selects 6-month no-cost EMI: ₹12,417/month. Enters her address and a preferred installation date window. The financing integration makes a ₹74,500 basket feel manageable and immediate. Checkout completes in under 4 minutes.', quote:'"The EMI option made it feel completely different. I wasn\'t spending ₹75,000 — I was spending ₹12,000 this month."'},
+  {stage:'Stage 06 — Delivery & Installation', title:'"Your installation team lead is Rajesh. He\'s installed 240 rooms."', desc:'Three days before delivery, she receives a WhatsApp message: "Your furniture arrives on [date]. Your installation team lead is Rajesh. Rating: 4.8/5." The installation takes 2.5 hours. Rajesh and his partner bring all tools. Priya doesn\'t have to do anything except make chai. When they leave, her living room looks exactly like the AI showed her it would.', quote:'"It was the first time a delivery experience in India didn\'t make me anxious. I knew exactly when they were coming and who was coming."'},
+  {stage:'Stage 07 — After-Sales', title:'"How does your room feel? We\'d love to see a photo."', desc:'24 hours later: a message arrives. Priya uploads a photo. It\'s beautiful. The AI responds: "Your room looks amazing. When you\'re ready to think about the bedroom, we already know your style. It\'ll be much faster." The platform has earned the right to suggest next steps.', quote:'"I uploaded a photo of my living room and it was the first time I felt like a company genuinely cared about whether things worked out."'},
+  {stage:'Stage 08 — Retention', title:'The home as a long-term relationship.', desc:'3 months later, the AI proactively messages her: "A lot of customers with similar living rooms added a side table next to the sofa at the 3-month mark. Would you like to see 3 options that match your existing pieces?" Priya buys a side table. Then a dining set. The platform becomes her home partner, not a store she visited once.', quote:'"It remembered my style without me having to explain it again. That\'s when I realized this was something completely different."'}
+];
+
+function switchJourney(idx){
+  document.querySelectorAll('.journey-step').forEach((s,i)=>s.classList.toggle('active',i===idx));
+  const d = journeyData[idx];
+  document.getElementById('journeyDetail').innerHTML = `
+    <div class="journey-detail-stage">${d.stage}</div>
+    <div class="journey-detail-title">${d.title}</div>
+    <div class="journey-detail-desc">${d.desc}</div>
+    <div class="journey-persona-quote">${d.quote}</div>`;
+}
+
+// Init
+revealElements();
+updateProgress();
+updateBackTop();
+</script>
+
+<!-- ══════════════════════════════════════
+     CITATIONS & SOURCES
+══════════════════════════════════════ -->
+<section id="citations" style="background:var(--cream2);padding:80px 0">
+  <div class="container">
+    <div class="section-label reveal">Research Sources</div>
+    <h2 class="section-title reveal reveal-delay-1" style="font-size:clamp(28px,4vw,40px)">Citations &amp; Data Sources</h2>
+    <p class="section-subtitle reveal reveal-delay-2">All statistics and market data referenced in this document are sourced from the following publicly available research and reports. Click any link to read the original article.</p>
+
+    <style>
+      .cite-link{color:var(--bronze);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;font-weight:500;transition:color 0.2s}
+      .cite-link:hover{color:var(--ink)}
+      .cite-sep{color:var(--stone);margin:0 6px}
+    </style>
+
+    <div style="margin-top:48px;display:grid;grid-template-columns:1fr 1fr;gap:24px;" class="reveal reveal-delay-2">
+
+      <!-- MARKET SIZE -->
+      <div style="background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:16px">Market Size &amp; Growth</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India Home Furniture Market</strong> — $15.80B (2024) → $33.80B (2033), CAGR 7.90%<br>
+            <a href="https://www.imarcgroup.com/india-home-furniture-market" target="_blank" rel="noopener" class="cite-link">IMARC Group — India Home Furniture Market Size, Growth and Trends, 2033</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India Home Furnishings Market</strong> — $7.49B (2025) → $12.71B (2034), CAGR 6.05%<br>
+            <a href="https://www.imarcgroup.com/india-home-furnishings-market" target="_blank" rel="noopener" class="cite-link">IMARC Group — India Home Furnishings Market Size, Price, Forecast 2034</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India Furniture Market (Total)</strong> — $25.38B (2025) → $44.30B (2034), CAGR 6.38%<br>
+            <a href="https://www.imarcgroup.com/india-furniture-market" target="_blank" rel="noopener" class="cite-link">IMARC Group — India Furniture Market Size, Share &amp; Industry Report 2034</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India Smart Furniture Market</strong> — Growth forecast 2024–2030<br>
+            <a href="https://www.nextmsc.com/report/india-smart-furniture-market" target="_blank" rel="noopener" class="cite-link">NextMSC — India Smart Furniture Market Analysis 2024–2030</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India B2C Ecommerce Market</strong> — Size &amp; Forecast<br>
+            <a href="https://www.businesswire.com/news/home/20230814278578/en/India-B2C-Ecommerce-Market-Size-Forecast-Report" target="_blank" rel="noopener" class="cite-link">BusinessWire — India B2C Ecommerce Market Size &amp; Forecast Report</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Global Online Furniture Market</strong> — ~$283B (2024), ~$318B projected (2025)<br>
+            <a href="https://www.clickpost.ai/blog/global-furniture-industry-market" target="_blank" rel="noopener" class="cite-link">ClickPost AI — Global Online Furniture Industry Size: Market Trends &amp; Growth Projections</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India Furniture Market (alternative forecast)</strong> — $27.25B (2024) → $72.11B (2033), CAGR 11.42%<br>
+            <a href="https://vocal.media/01/india-furniture-market-size-and-forecast-2025-2033-history" target="_blank" rel="noopener" class="cite-link">Vocal Media — India Furniture Market Size and Forecast 2025–2033</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Online Home Decor India</strong> — Growth $4.78B (2024–2028)<br>
+            <a href="https://www.prnewswire.com/news-releases/online-home-decor-market-in-india-to-grow-by-usd-4-78-billion-2024-2028--driven-by-online-spending-and-smartphone-use-powered-by-ai---technavio-report-302139040.html" target="_blank" rel="noopener" class="cite-link">PRNewswire / Technavio — Online Home Decor Market in India to Grow by USD 4.78 Billion</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Home Furniture Market Global</strong> — Growing by $95.7B (2024–2028)<br>
+            <a href="https://ians.in/pr-wire-detail/home-furniture-market-to-grow-by-usd-95-7-billion-2024" target="_blank" rel="noopener" class="cite-link">IANS — Home Furniture Market to Grow by USD 95.7 Billion</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- AI COMMERCE -->
+      <div style="background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:16px">AI Commerce &amp; Personalization</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Agentic Commerce $3–5T by 2030</strong> — McKinsey; US B2C alone up to $1T<br>
+            <a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-agentic-commerce-opportunity-how-ai-agents-are-ushering-in-a-new-era-for-consumers-and-merchants" target="_blank" rel="noopener" class="cite-link">McKinsey — The Agentic Commerce Opportunity (Oct 2025)</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Conversational Commerce ~$290B (2025)</strong> — from $41B in 2021 (7× growth)<br>
+            <a href="https://www.experro.com/blog/conversational-commerce-statistics-and-market-size/" target="_blank" rel="noopener" class="cite-link">Experro — Conversational Commerce Statistics &amp; Market Size 2025–2030</a>
+            <span class="cite-sep">·</span>
+            <a href="https://bigsur.ai/blog/conversational-commerce-statistics" target="_blank" rel="noopener" class="cite-link">BigSur AI — 2025 Conversational Commerce Statistics</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>AI Personalization: 300% Revenue Increase</strong> — 150% conversion lift, 50% AOV growth<br>
+            <a href="https://gauss.hr/en/blog/ai-in-ecommerce-statistics" target="_blank" rel="noopener" class="cite-link">Gauss HR — AI eCommerce Statistics for 2025</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.envive.ai/post/online-shopping-conversion-lift-statistics" target="_blank" rel="noopener" class="cite-link">Envive — 52 Online Shopping Conversion Lift Statistics in 2026</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>74% of US consumers — AI enhances shopping experience</strong><br>
+            <a href="https://gauss.hr/en/blog/ai-in-ecommerce-statistics" target="_blank" rel="noopener" class="cite-link">Gauss HR — AI eCommerce Statistics for 2025</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>AI Personalization: 10–15% revenue uplift (McKinsey 2024)</strong><br>
+            <a href="https://ecomposer.io/blogs/ecommerce/ai-personalization-ecommerce" target="_blank" rel="noopener" class="cite-link">EComposer — How AI Personalization Is Transforming eCommerce in 2026</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>AI Recommendations drive 35% of Amazon annual sales</strong><br>
+            <a href="https://gauss.hr/en/blog/ai-in-ecommerce-statistics" target="_blank" rel="noopener" class="cite-link">Gauss HR — AI eCommerce Statistics for 2025</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.envive.ai/post/ai-product-recommendation-accuracy-statistics" target="_blank" rel="noopener" class="cite-link">Envive — 29 AI Product Recommendation Accuracy Statistics</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>AI Hallucinations cost $67.4B (2024)</strong> — 71% abandon brand after one bad AI interaction<br>
+            <a href="https://korra.ai/blog/the-67-billion-warning-how-ai-hallucinations-hurt-enterprises-and-how-to-stop-them" target="_blank" rel="noopener" class="cite-link">Korra — The $67 Billion Warning: How AI Hallucinations Hurt Enterprises</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Consumer trust concerns with AI for high-value purchases</strong><br>
+            <a href="https://www.bain.com/insights/agentic-ai-commerce-hinges-on-consumer-trust/" target="_blank" rel="noopener" class="cite-link">Bain &amp; Company — Agentic AI Commerce Hinges on Consumer Trust</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.deloitte.com/us/en/insights/industry/telecommunications/connectivity-mobile-trends-survey.html" target="_blank" rel="noopener" class="cite-link">Deloitte — Earning trust as gen AI takes hold: 2024 Connected Consumer Survey</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Furniture eCommerce Trends, Challenges &amp; Expert Opinions</strong><br>
+            <a href="https://zolak.tech/blog/furniture-ecommerce-trends" target="_blank" rel="noopener" class="cite-link">Zolak Tech — Furniture eCommerce 2026: Trends, Challenges, Expert Opinions</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>AI Product Recommendations in Retail &amp; E-Commerce</strong><br>
+            <a href="https://www.rapidinnovation.io/post/ai-product-recommendations-in-retail-and-e-commerce" target="_blank" rel="noopener" class="cite-link">Rapid Innovation — AI Product Recommendations in Retail and E-Commerce 2024</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.mindstudio.ai/blog/ai-powered-product-recommendations-for-e-commerce" target="_blank" rel="noopener" class="cite-link">MindStudio — AI-Powered Product Recommendations for E-Commerce</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- CONSUMER BEHAVIOUR -->
+      <div style="background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:16px">Consumer Behaviour &amp; Purchase Decisions</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>63% start online, only 43% complete online</strong> — furniture purchase journey<br>
+            <a href="https://www.firstchair.app/blog/furniture-shopping-behavior-statistics" target="_blank" rel="noopener" class="cite-link">First Chair — Furniture Purchase Decision Time Statistics</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Global cart abandonment: 70.19%</strong> — $260B in recoverable lost orders annually<br>
+            <a href="https://www.envive.ai/post/ecommerce-conversion-rate-statistics" target="_blank" rel="noopener" class="cite-link">Envive — 50 E-commerce Conversion Rate Statistics for 2026</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Choice fatigue &amp; consumer decision paralysis</strong> — meta-analysis of 99 studies<br>
+            <a href="https://ieeexplore.ieee.org/document/9850085" target="_blank" rel="noopener" class="cite-link">IEEE Xplore — How Choice Fatigue Affects Consumer Decision Making in Online Shopping</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.researchgate.net/publication/362224037_An_Analysis_on_the_Impact_of_Choice_Overload_to_Consumer_Decision_Paralysis" target="_blank" rel="noopener" class="cite-link">ResearchGate — An Analysis on the Impact of Choice Overload to Consumer Decision Paralysis</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.renascence.io/journal/choice-overload-difficulty-in-making-decisions-with-too-many-options" target="_blank" rel="noopener" class="cite-link">Renascence — Choice Overload: Difficulty in Making Decisions with Too Many Options</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Online furniture return rates: 18–25%</strong><br>
+            <a href="https://www.firstchair.app/blog/furniture-shopping-behavior-statistics" target="_blank" rel="noopener" class="cite-link">First Chair — Furniture Shopping Behavior Statistics</a>
+            <span class="cite-sep">·</span>
+            <a href="https://zolak.tech/blog/furniture-ecommerce-trends" target="_blank" rel="noopener" class="cite-link">Zolak Tech — Furniture eCommerce 2026</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Online furniture buying influencing factors</strong><br>
+            <a href="https://bioresources.cnr.ncsu.edu/resources/influencing-factors-of-online-furniture-purchase-behavior-based-on-analytic-hierarchy-process/" target="_blank" rel="noopener" class="cite-link">BioResources (NC State) — Influencing factors of online furniture purchase behavior</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Consumer decision fatigue &amp; choice overload (academic)</strong><br>
+            <a href="https://www.academia.edu/search?q=choice+fatigue+online+shopping" target="_blank" rel="noopener" class="cite-link">Academia.edu — How Choice Fatigue Affects Consumer Decision Making in Online Shopping</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.ijfmr.com" target="_blank" rel="noopener" class="cite-link">IJFMR — International Journal for Multidisciplinary Research</a>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- COMPETITOR & DEMOGRAPHICS -->
+      <div style="background:var(--white);border:1px solid var(--stone);border-radius:var(--radius);padding:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--bronze);margin-bottom:16px">Competitor Intelligence &amp; Demographics</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Pepperfry, Urban Ladder, Wooden Street competitor analysis</strong><br>
+            <a href="https://www.owler.com/company/urbanladder" target="_blank" rel="noopener" class="cite-link">Owler — Urban Ladder Competitors &amp; Alternatives</a>
+            <span class="cite-sep">·</span>
+            <a href="https://canvasbusinessmodel.com/blogs/competitors/pepperfry-competitive-landscape" target="_blank" rel="noopener" class="cite-link">CanvasBusinessModel — Pepperfry Competitive Landscape</a>
+            <span class="cite-sep">·</span>
+            <a href="https://the-ken.com/story/wooden-streets-furniture-play-that-pepperfry-and-urban-ladder-missed/" target="_blank" rel="noopener" class="cite-link">The Ken — Wooden Street's furniture play that Pepperfry and Urban Ladder missed</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.business-standard.com/companies/news/urban-ladder-s-offline-strategy-is-different-from-rival-pepperfry-s-116091500232_1.html" target="_blank" rel="noopener" class="cite-link">Business Standard — Urban Ladder's offline strategy</a>
+            <span class="cite-sep">·</span>
+            <a href="https://manikarthik.com/pepperfry-vs-urban-ladder" target="_blank" rel="noopener" class="cite-link">Manikarthik — Pepperfry Vs Urban Ladder</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Urban Ladder acquired by Reliance for ₹182Cr — analysis</strong><br>
+            <a href="https://www.ajuniorvc.com/p/what-happened-to-urban-ladder" target="_blank" rel="noopener" class="cite-link">A Junior VC — What Happened to Urban Ladder?</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Livspace complaints, trust issues, business model</strong><br>
+            <a href="https://www.inventiva.co.in/trends/livspace-unicorn-scam-startup/" target="_blank" rel="noopener" class="cite-link">Inventiva — Livspace: Does This Unicorn Aesthetically Designed Their Scam Startup?</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.trustpilot.com/review/livspace.com" target="_blank" rel="noopener" class="cite-link">Trustpilot — Livspace Customer Reviews</a>
+            <span class="cite-sep">·</span>
+            <a href="https://foundlanes.com/livspace-case-study" target="_blank" rel="noopener" class="cite-link">Foundlanes — LivSpace Case Study: How LivSpace Built and Scaled in India</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Millennials &amp; Gen Z: dominant homebuyers in India</strong><br>
+            <a href="https://thecsrjournal.in/millennials-and-gen-z-account-for-most-home-purchases-in-india/" target="_blank" rel="noopener" class="cite-link">The CSR Journal — Millennials and Gen Z Account for Most Home Purchases in India</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.puravankara.com/blog/why-millennials-and-gen-z-are-choosing-home-ownership-early" target="_blank" rel="noopener" class="cite-link">Puravankara — Why Millennials and Gen Z Are Choosing Home Ownership Early</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.sobha.com/blog/millennial-homebuying-trends-2025" target="_blank" rel="noopener" class="cite-link">Sobha — Millennial Homebuying Trends 2025</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>Gen Z home buying trends 2025</strong><br>
+            <a href="https://www.navanaami.com/blog/gen-z-home-buying-trends-2025" target="_blank" rel="noopener" class="cite-link">Navanaami — Gen Z Home Buying Trends 2025</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.radian.com/newsroom/millennials-gen-z-homebuyers" target="_blank" rel="noopener" class="cite-link">Radian — Millennials and Gen Z: A New Generation of Homebuyers</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>How furniture brands can reach Millennials &amp; Gen Z</strong><br>
+            <a href="https://porchgroupmedia.com/blog/furniture-brands-reach-millennials-gen-z-2025/" target="_blank" rel="noopener" class="cite-link">PGM / Porch Group Media — 4 Ways Furniture Brands Can Reach Millennials &amp; Gen Z in 2025</a>
+            <span class="cite-sep">·</span>
+            <a href="https://myhfa.org/from-boomers-to-zoomers-discover-generational-shopping-trends/" target="_blank" rel="noopener" class="cite-link">HFA — From Boomers to Zoomers: Generational Shopping Trends</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India last-mile delivery challenges</strong> — ~53% of total shipping cost<br>
+            <a href="https://shipsy.io/blog/last-mile-logistics-software-india" target="_blank" rel="noopener" class="cite-link">Shipsy — Last Mile Logistics Software in India</a>
+            <span class="cite-sep">·</span>
+            <a href="https://www.awlindia.com/blog/last-mile-delivery-challenges-tier-ii-tier-iii-india" target="_blank" rel="noopener" class="cite-link">AWL India — Last-Mile Delivery Challenges in Tier-II &amp; Tier-III India</a>
+            <span class="cite-sep">·</span>
+            <a href="https://shift.in/blog/last-mile-delivery-challenges-solutions-urban-logistics" target="_blank" rel="noopener" class="cite-link">Shift — The Last-Mile Delivery Puzzle: Challenges and Solutions</a>
+            <span class="cite-sep">·</span>
+            <a href="https://blogs.isb.edu/sustainable-e-commerce-addressing-last-mile-delivery-challenges" target="_blank" rel="noopener" class="cite-link">ISB Blogs — Sustainable E-Commerce &amp; Last-Mile Delivery Challenges</a>
+          </li>
+
+          <li style="font-size:13px;color:var(--charcoal);line-height:1.6">
+            <strong>India startup &amp; ecommerce ecosystem coverage</strong><br>
+            <a href="https://yourstory.com" target="_blank" rel="noopener" class="cite-link">YourStory — India's leading startup media platform</a>
+          </li>
+
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="margin-top:32px;background:var(--bronze-pale);border:1px solid rgba(139,105,20,0.2);border-radius:var(--radius);padding:20px 24px;" class="reveal reveal-delay-3">
+      <p style="font-size:13px;color:var(--charcoal);line-height:1.7"><strong>Note on market figures:</strong> Market size estimates for India's furniture and home goods sector vary significantly across research providers due to differing scope definitions (home furniture only vs. total furnishings vs. home decor). The figures used in this document primarily reference the <strong>India home furniture</strong> sub-segment ($15.80B → $33.80B at 7.90% CAGR, IMARC Group) and the broader <strong>India home furnishings</strong> category ($7.49B in 2025, IMARC). All figures should be independently verified before use in investor materials or financial projections.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
